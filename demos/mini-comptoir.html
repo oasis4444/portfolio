@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Comptoir · Démo Ampandrana</title>
+<script>
+/* Ampandrana Création Logiciel : mode démonstration.
+   Chaque visite et chaque déconnexion repartent de données de test neuves. */
+(function () {
+  var C = window.__DEMO = {"title": "Comptoir · gestion de magasin", "canFill": true, "hint": "Connectez-vous, puis ajoutez, modifiez ou supprimez ce que vous voulez.", "accounts": [{"label": "Gérant", "user": "gerant", "pass": "demo123"}, {"label": "Caissière", "user": "caisse", "pass": "demo123"}], "back": "../index.html"};
+  try { localStorage.clear(); } catch (e) {}
+  try { sessionStorage.clear(); } catch (e) {}
+  (C.dbs || []).forEach(function (n) { try { indexedDB.deleteDatabase(n); } catch (e) {} });
+  try { Object.keys(C.preset || {}).forEach(function (k) { localStorage.setItem(k, C.preset[k] === '@now' ? String(Date.now()) : C.preset[k]); }); } catch (e) {}
+  window.DEMO_LOGOUT = function () {
+    try {
+      var o = document.createElement('div');
+      o.setAttribute('style', 'position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;background:rgba(10,16,32,.72);color:#fff;font:600 17px/1.4 system-ui,sans-serif;text-align:center;padding:24px');
+      o.textContent = 'Déconnexion… vos données de test sont effacées.';
+      document.body.appendChild(o);
+    } catch (e) {}
+    try { localStorage.clear(); sessionStorage.clear(); } catch (e) {}
+    setTimeout(function () { location.reload(); }, 700);
+  };
+  window.DEMO_RNG = function (seed) { var a = seed >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+})();
+
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap">
+<style>:root{--side:#0E3326;--side-fg:#DDEFE5;--acc:#1F9D57;--acc-ink:#fff;--bg:#F4F6F5;--surf:#fff;--ink:#14201A;--mut:#5F6E66;--line:#E2E8E4;--soft:#EAF4EE;--red:#C2362B;--amber:#A35F08;--blue:#1D5FD0;color-scheme:light}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Figtree","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+h1,h2,h3{font-family:"Outfit","Segoe UI",sans-serif;margin:0;line-height:1.2}
+.muted{color:var(--mut)}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--acc) 55%,transparent);outline-offset:2px}
+.mark{width:42px;height:42px;border-radius:12px;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center;font:800 18px "Outfit",sans-serif;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:0 16px;border-radius:11px;border:1px solid var(--line);background:var(--surf);font-weight:700;cursor:pointer;white-space:nowrap}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.btn.danger{color:var(--red);border-color:color-mix(in srgb,var(--red) 35%,var(--line))}
+.btn.wide{width:100%;margin-top:18px;min-height:48px}
+/* connexion */
+.login{min-height:100%;display:grid;place-items:center;padding:24px 16px;background:radial-gradient(900px 500px at 10% 0%,color-mix(in srgb,var(--acc) 30%,transparent),transparent 60%),var(--side)}
+.lcard{width:100%;max-width:400px;background:var(--surf);border-radius:20px;padding:28px;box-shadow:0 30px 60px -20px rgba(0,0,0,.5);display:flex;flex-direction:column}
+.lhead{display:flex;gap:12px;align-items:center;margin-bottom:22px}.lhead b{display:block;font:700 18px "Outfit",sans-serif}.lhead small{color:var(--mut)}
+.lcard h1{font-size:24px}.lcard p{margin:6px 0 10px}
+.lcard label,.fbody label{font-weight:700;font-size:13.5px;color:var(--mut);margin:12px 0 6px}
+input,select{width:100%;min-height:44px;padding:0 12px;border:1.5px solid var(--line);border-radius:11px;background:var(--surf)}
+input:focus,select:focus{border-color:var(--acc);outline:none}
+.note{padding:10px 12px;border-radius:10px;font-size:14px;margin:8px 0}.note.err{background:#FDECEA;color:var(--red)}
+/* cadre */
+.shell{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100%}
+.side{background:var(--side);color:var(--side-fg);display:flex;flex-direction:column;gap:6px;padding:18px 12px;position:sticky;top:0;height:100vh}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 6px 16px}.brand b{display:block;color:#fff;font:700 16px "Outfit",sans-serif}.brand small{opacity:.7;font-size:12px}
+.nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow:auto}
+.nav button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;color:var(--side-fg);padding:11px 12px;border-radius:10px;font-weight:600;cursor:pointer}
+.nav button:hover{background:rgba(255,255,255,.07)}.nav button.on{background:var(--acc);color:var(--acc-ink)}
+.nav i{margin-left:auto;font-style:normal;background:#F5B83D;color:#2A1A00;border-radius:99px;font-size:11.5px;font-weight:800;padding:1px 7px}
+.me{display:flex;align-items:center;gap:10px;padding:12px 6px 0;border-top:1px solid rgba(255,255,255,.1)}
+.me div{flex:1;min-width:0}.me b{display:block;color:#fff;font-size:14px}.me small{opacity:.7;font-size:12px}
+.av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);display:grid;place-items:center;font-weight:800;color:#fff}
+.out{background:rgba(255,255,255,.08);border:0;color:#fff;width:40px;height:40px;border-radius:10px;cursor:pointer;display:grid;place-items:center}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 26px;background:var(--surf);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.top h2{font-size:22px}.top .sp{flex:1}.search{width:220px}
+.content{padding:22px 26px 120px}
+/* tableau de bord */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:16px}
+.kpi{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.kpi span{font-size:13px;font-weight:700;color:var(--mut)}.kpi b{font:700 24px "Outfit",sans-serif;font-variant-numeric:tabular-nums}.kpi b.up{color:var(--acc)}.kpi b.down{color:var(--red)}.kpi b.warn{color:var(--amber)}.kpi small{color:var(--mut);font-size:12.5px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}.card h3{font-size:16px;margin-bottom:14px}
+.bars{display:flex;align-items:flex-end;gap:10px;height:210px;padding-top:6px;background:linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 25%}
+.bar{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;min-width:0}
+.bar span{width:100%;border-radius:7px 7px 0 0;background:color-mix(in srgb,var(--acc) 35%,var(--surf))}.bar span.hl{background:var(--acc)}
+.bar em{font-style:normal;font-size:11px;font-weight:700;color:var(--mut);font-variant-numeric:tabular-nums}.bar small{font-size:11.5px;color:var(--mut);text-transform:capitalize}
+.list{list-style:none;margin:0;padding:0}.list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.list li:last-child{border:0}
+.list b{display:block;font-size:14px}.list small{color:var(--mut);font-size:12.5px}
+.chip{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:700;background:var(--bg);color:var(--mut);white-space:nowrap}
+.chip.ok{background:var(--soft);color:var(--acc)}.chip.bad{background:#FDECEA;color:var(--red)}.chip.warn{background:#FFF2DC;color:var(--amber)}.chip.info{background:#E6EEFC;color:var(--blue)}
+/* listes */
+.intro{margin:0 0 12px}.hint{font-size:13px;margin-top:10px}
+.tw{background:var(--surf);border:1px solid var(--line);border-radius:16px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{text-align:left;font-size:12.5px;color:var(--mut);padding:11px 14px;background:color-mix(in srgb,var(--bg) 70%,var(--surf));border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--line)}tbody tr{cursor:pointer}tbody tr:hover td{background:var(--soft)}
+.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tfoot td{font-weight:800;background:color-mix(in srgb,var(--bg) 70%,var(--surf))}
+td.empty{text-align:center;color:var(--mut);padding:36px;cursor:default}
+/* fenêtre */
+.mbg{position:fixed;inset:0;background:rgba(8,14,12,.5);display:grid;place-items:center;padding:16px;z-index:50}
+.modal{background:var(--surf);border-radius:18px;width:100%;max-width:520px;max-height:calc(100vh - 32px);display:flex;flex-direction:column;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.modal header{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}.modal header h3{flex:1;font-size:18px}
+.x{background:none;border:0;font-size:26px;line-height:1;cursor:pointer;color:var(--mut);width:40px;height:40px;border-radius:10px}
+.fbody{padding:6px 20px 18px;overflow:auto;display:flex;flex-direction:column}
+.modal footer{display:flex;gap:10px;align-items:center;padding:14px 20px;border-top:1px solid var(--line)}.modal footer .sp{flex:1}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;z-index:60}.toast.err{background:var(--red)}
+@media (max-width:760px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .side,.main{min-width:0}
+  .top .btn{flex:1}
+  .side{position:sticky;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px 12px;z-index:6}
+  .brand{padding:0;flex:1}.brand small{display:none}
+  .nav{flex:1 1 100%;flex-direction:row;overflow-x:auto;order:3}.nav button{width:auto;white-space:nowrap;padding:9px 12px}
+  .me{border:0;padding:0}.me div{display:none}
+  .top{position:static;padding:14px 16px}.search{width:100%;order:3}
+  .content{padding:16px 16px 140px}
+  thead{display:none}table,tbody,tr,td,tfoot{display:block;width:100%}
+  tbody tr{border-bottom:1px solid var(--line);padding:6px 0}td{border:0;padding:5px 14px;display:flex;justify-content:space-between;gap:12px;text-align:right}
+  td::before{content:attr(data-l);color:var(--mut);font-size:13px;font-weight:600;text-align:left}
+  tfoot td::before{content:none}
+}
+</style>
+<div id="app"></div>
+<script>
+/* Configuration des mini-logiciels de démonstration (données fictives). */
+var CONFIGS = {};
+(function () {
+  var stockOf = function (DB, nom) { var p = DB.produits.find(function (x) { return x.nom === nom; }); return p; };
+  var badgeStock = function (p) { return +p.stock <= 0 ? 'bad' : +p.stock <= +p.seuil ? 'warn' : 'ok'; };
+  var etatStock = function (p) { return +p.stock <= 0 ? 'Rupture' : +p.stock <= +p.seuil ? 'Faible' : 'OK'; };
+
+  /* ===================== COMPTOIR — gestion de magasin ===================== */
+  CONFIGS.comptoir = {
+    id: 'comptoir', app: 'Comptoir', sub: 'Gestion de magasin', initial: 'C', seed: 11,
+    colors: { side: '#0E3326', sideFg: '#DDEFE5', acc: '#1F9D57', soft: '#E6F6EC' },
+    users: [{ u: 'gerant', p: 'demo123', name: 'Gérant', role: 'Administrateur' }, { u: 'caisse', p: 'demo123', name: 'Caissière', role: 'Caisse' }],
+    quick: { label: 'Nouvelle vente', table: 'ventes' },
+    menu: [
+      { id: 'dash', label: 'Tableau de bord' },
+      { id: 'ventes', label: 'Ventes', table: 'ventes' },
+      { id: 'produits', label: 'Produits & stock', table: 'produits', badge: function (DB) { return DB.produits.filter(function (p) { return +p.stock <= +p.seuil; }).length; } },
+      { id: 'clients', label: 'Clients', table: 'clients' },
+      { id: 'depenses', label: 'Dépenses', table: 'depenses' }
+    ],
+    tables: {
+      produits: {
+        addLabel: 'Nouveau produit', intro: 'Le stock baisse automatiquement à chaque vente enregistrée.',
+        cols: [{ k: 'nom', label: 'Produit', req: 1 }, { k: 'categorie', label: 'Catégorie', opts: ['Alimentation', 'Boissons', 'Hygiène', 'Ménage', 'Divers'] }, { k: 'prix', label: 'Prix de vente', type: 'money', req: 1 }, { k: 'stock', label: 'Stock', type: 'num' }, { k: 'seuil', label: 'Seuil d\'alerte', type: 'num' },
+          { k: 'etat', label: 'État', calc: function (r) { return etatStock(r); }, badge: { Rupture: 'bad', Faible: 'warn', OK: 'ok' } }],
+        defaults: function () { return { categorie: 'Alimentation', stock: 0, seuil: 5 }; },
+        seed: function () { return [['Riz 25 kg', 'Alimentation', 72000, 34, 10], ['Huile 5 L', 'Alimentation', 42000, 18, 6], ['Sucre 1 kg', 'Alimentation', 4200, 60, 20], ['Savon x12', 'Hygiène', 14000, 4, 6], ['Eau minérale 1,5 L', 'Boissons', 2000, 96, 24], ['Lessive 1 kg', 'Ménage', 6500, 22, 8], ['Pâtes 500 g', 'Alimentation', 2200, 0, 10], ['Café moulu 250 g', 'Alimentation', 7800, 15, 5]].map(function (a) { return { nom: a[0], categorie: a[1], prix: a[2], stock: a[3], seuil: a[4] }; }); }
+      },
+      ventes: {
+        addLabel: 'Nouvelle vente', savedNew: 'Vente enregistrée, stock mis à jour.',
+        sort: function (a, b) { return (b.date + b.id).localeCompare(a.date + a.id); },
+        total: function (r) { return r.qte * r.prix; },
+        cols: [{ k: 'date', label: 'Date', type: 'date', req: 1 }, { k: 'client', label: 'Client' }, { k: 'produit', label: 'Produit', req: 1, opts: function (DB) { return DB.produits.map(function (p) { return p.nom; }); } }, { k: 'qte', label: 'Quantité', type: 'num', req: 1 }, { k: 'prix', label: 'Prix unitaire', type: 'money', req: 1, help: 'Rempli automatiquement selon le produit.' },
+          { k: 'total', label: 'Total', type: 'money', calc: function (r) { return r.qte * r.prix; } }],
+        defaults: function (DB, H) { var p = DB.produits[0]; return { date: H.today(), client: 'Client comptoir', produit: p.nom, qte: 1, prix: p.prix }; },
+        live: function (r, k, DB) { if (k === 'produit') { var p = stockOf(DB, r.produit); if (p) r.prix = p.prix; } },
+        check: function (r, DB, H, old) { var p = stockOf(DB, r.produit); var dispo = p ? +p.stock + (old && old.produit === r.produit ? +old.qte : 0) : 0; if (p && +r.qte > dispo) return 'Stock insuffisant pour ' + r.produit + ' (disponible : ' + dispo + ').'; },
+        onSave: function (r, DB, H, old) { if (old) { var po = stockOf(DB, old.produit); if (po) po.stock = +po.stock + +old.qte; } var p = stockOf(DB, r.produit); if (p) p.stock = +p.stock - +r.qte; },
+        onDelete: function (r, DB) { var p = stockOf(DB, r.produit); if (p) p.stock = +p.stock + +r.qte; },
+        seed: function (H) { var out = [], P = [['Riz 25 kg', 72000], ['Huile 5 L', 42000], ['Sucre 1 kg', 4200], ['Eau minérale 1,5 L', 2000], ['Lessive 1 kg', 6500], ['Café moulu 250 g', 7800]]; for (var d = 13; d >= 0; d--) for (var i = 0; i < H.int(3, 6); i++) { var p = H.pick(P); out.push({ date: H.d(-d), client: H.pick(['Client comptoir', 'Client comptoir', 'Épicerie Soa', 'Hotely Mahery']), produit: p[0], qte: H.int(1, 5), prix: p[1] }); } return out; }
+      },
+      clients: {
+        addLabel: 'Nouveau client',
+        cols: [{ k: 'nom', label: 'Nom', req: 1 }, { k: 'tel', label: 'Téléphone' }, { k: 'type', label: 'Type', opts: ['Particulier', 'Revendeur', 'Restaurant'] }, { k: 'achats', label: 'Achats (14 jours)', type: 'money', calc: function (r, DB, H) { return H.sum(DB.ventes.filter(function (v) { return v.client === r.nom; }).map(function (v) { return { t: v.qte * v.prix }; }), 't'); } }],
+        seed: function () { return [{ nom: 'Épicerie Soa', tel: '034 00 000 11', type: 'Revendeur' }, { nom: 'Hotely Mahery', tel: '032 00 000 22', type: 'Restaurant' }, { nom: 'Client comptoir', tel: '', type: 'Particulier' }]; }
+      },
+      depenses: {
+        addLabel: 'Nouvelle dépense', total: function (r) { return r.montant; },
+        sort: function (a, b) { return b.date.localeCompare(a.date); },
+        cols: [{ k: 'date', label: 'Date', type: 'date', req: 1 }, { k: 'libelle', label: 'Libellé', req: 1 }, { k: 'categorie', label: 'Catégorie', opts: ['Loyer', 'Électricité', 'Transport', 'Salaire', 'Divers'] }, { k: 'montant', label: 'Montant', type: 'money', req: 1 }],
+        defaults: function (DB, H) { return { date: H.today(), categorie: 'Divers' }; },
+        seed: function (H) { return [{ date: H.d(-1), libelle: 'Transport marchandises', categorie: 'Transport', montant: 35000 }, { date: H.d(-6), libelle: 'Facture électricité', categorie: 'Électricité', montant: 85000 }, { date: H.d(-9), libelle: 'Sacs plastiques', categorie: 'Divers', montant: 12000 }]; }
+      }
+    },
+    kpis: function (DB, H) {
+      var t = DB.ventes.filter(function (v) { return v.date === H.today(); }), m = DB.ventes.filter(function (v) { return v.date.slice(0, 7) === H.month(); });
+      var ca = function (l) { return l.reduce(function (a, v) { return a + v.qte * v.prix; }, 0); };
+      var low = DB.produits.filter(function (p) { return +p.stock <= +p.seuil; }).length;
+      return [{ label: 'CA aujourd\'hui', value: H.money(ca(t)), sub: t.length + ' vente(s)', tone: 'up' }, { label: 'CA du mois', value: H.money(ca(m)), sub: m.length + ' ventes' }, { label: 'Dépenses du mois', value: H.money(H.sum(DB.depenses.filter(function (d) { return d.date.slice(0, 7) === H.month(); }), 'montant')), tone: 'down' }, { label: 'Produits à commander', value: String(low), sub: 'stock faible ou rupture', tone: low ? 'warn' : '' }];
+    },
+    chart: function (DB, H) { return { title: 'Chiffre d\'affaires des 7 derniers jours', short: function (v) { return Math.round(v / 1000) + ' k'; }, points: H.last7(DB.ventes.map(function (v) { return { date: v.date, t: v.qte * v.prix }; }), 'date', 't') }; },
+    lists: function (DB, H) {
+      return [{ title: 'Stock à surveiller', empty: 'Tous les stocks sont suffisants.', rows: DB.produits.filter(function (p) { return +p.stock <= +p.seuil; }).map(function (p) { return [p.nom, 'Seuil : ' + p.seuil, p.stock + ' en stock', badgeStock(p)]; }) },
+        { title: 'Dernières ventes', rows: DB.ventes.slice().sort(function (a, b) { return (b.date + b.id).localeCompare(a.date + a.id); }).slice(0, 5).map(function (v) { return [v.produit + ' × ' + v.qte, v.client, H.money(v.qte * v.prix), 'ok']; }) }];
+    }
+  };
+
+  /* ===================== V'LANY GASY — restaurant ===================== */
+  CONFIGS.vlany = {
+    id: 'vlany', app: 'V’lany Gasy', sub: 'Système de gestion', initial: 'V', seed: 23,
+    colors: { side: '#101D45', sideFg: '#D8E0F5', acc: '#22A35A', soft: '#E4F5EB' },
+    users: [{ u: 'gerant', p: 'demo123', name: 'Super-admin', role: 'Gérant' }, { u: 'serveur', p: 'demo123', name: 'Serveur', role: 'Service en salle' }],
+    quick: { label: 'Nouvelle commande', table: 'commandes' },
+    menu: [
+      { id: 'dash', label: 'Tableau de bord', hello: function (u) { return 'Bonjour, ' + u.name; } },
+      { id: 'commandes', label: 'Commandes', table: 'commandes', badge: function (DB) { return DB.commandes.filter(function (c) { return c.statut === 'En cuisine'; }).length; } },
+      { id: 'menus', label: 'Menus', table: 'menus' },
+      { id: 'stock', label: 'Stock cuisine', table: 'stock', badge: function (DB) { return DB.stock.filter(function (s) { return +s.quantite <= +s.seuil; }).length; } },
+      { id: 'achats', label: 'Achats', table: 'achats' },
+      { id: 'depenses', label: 'Dépenses', table: 'depenses' }
+    ],
+    tables: {
+      commandes: {
+        addLabel: 'Nouvelle commande', savedNew: 'Commande envoyée en cuisine.', total: function (r) { return r.qte * r.prix; },
+        sort: function (a, b) { return (b.date + b.id).localeCompare(a.date + a.id); },
+        cols: [{ k: 'date', label: 'Date', type: 'date', req: 1 }, { k: 'table', label: 'Table', opts: ['Table 1', 'Table 2', 'Table 3', 'Table 4', 'Table 5', 'Terrasse', 'À emporter'] }, { k: 'plat', label: 'Plat ou boisson', req: 1, opts: function (DB) { return DB.menus.map(function (m) { return m.plat; }); } }, { k: 'qte', label: 'Quantité', type: 'num', req: 1 }, { k: 'prix', label: 'Prix', type: 'money', req: 1 },
+          { k: 'statut', label: 'Statut', opts: ['En cuisine', 'Servie', 'Payée'], badge: { 'En cuisine': 'warn', 'Servie': 'info', 'Payée': 'ok' } }, { k: 'total', label: 'Total', type: 'money', calc: function (r) { return r.qte * r.prix; } }],
+        defaults: function (DB, H) { var m = DB.menus[0]; return { date: H.today(), table: 'Table 1', plat: m.plat, qte: 1, prix: m.prix, statut: 'En cuisine' }; },
+        live: function (r, k, DB) { if (k === 'plat') { var m = DB.menus.find(function (x) { return x.plat === r.plat; }); if (m) r.prix = m.prix; } },
+        seed: function (H) { var out = [], M = [['Romazava', 12000], ['Ravitoto sy henakisoa', 14000], ['Mofo gasy (x4)', 2000], ['Jus de fruits frais', 4000], ['Akoho sy voanio', 16000], ['Mi sao', 10000]]; for (var d = 13; d >= 0; d--) for (var i = 0; i < H.int(5, 10); i++) { var m = H.pick(M); out.push({ date: H.d(-d), table: H.pick(['Table 1', 'Table 2', 'Table 3', 'Terrasse', 'À emporter']), plat: m[0], qte: H.int(1, 4), prix: m[1], statut: d === 0 && i < 2 ? 'En cuisine' : 'Payée' }); } return out; }
+      },
+      menus: {
+        addLabel: 'Nouveau plat',
+        cols: [{ k: 'plat', label: 'Plat ou boisson', req: 1 }, { k: 'categorie', label: 'Catégorie', opts: ['Plat', 'Snack', 'Boisson', 'Dessert'] }, { k: 'prix', label: 'Prix', type: 'money', req: 1 }, { k: 'dispo', label: 'Disponible', opts: ['Oui', 'Non'], badge: { Oui: 'ok', Non: 'bad' } }],
+        defaults: function () { return { categorie: 'Plat', dispo: 'Oui' }; },
+        seed: function () { return [['Romazava', 'Plat', 12000], ['Ravitoto sy henakisoa', 'Plat', 14000], ['Akoho sy voanio', 'Plat', 16000], ['Mi sao', 'Plat', 10000], ['Mofo gasy (x4)', 'Snack', 2000], ['Jus de fruits frais', 'Boisson', 4000], ['Café', 'Boisson', 1500], ['Koba', 'Dessert', 3000]].map(function (a) { return { plat: a[0], categorie: a[1], prix: a[2], dispo: 'Oui' }; }); }
+      },
+      stock: {
+        addLabel: 'Nouvel ingrédient', intro: 'Les achats enregistrés augmentent automatiquement ce stock.',
+        cols: [{ k: 'ingredient', label: 'Ingrédient', req: 1 }, { k: 'quantite', label: 'Quantité', type: 'num' }, { k: 'unite', label: 'Unité', opts: ['kg', 'litre', 'pièce', 'botte'] }, { k: 'seuil', label: 'Seuil', type: 'num' },
+          { k: 'etat', label: 'État', calc: function (r) { return +r.quantite <= 0 ? 'Rupture' : +r.quantite <= +r.seuil ? 'À racheter' : 'OK'; }, badge: { Rupture: 'bad', 'À racheter': 'warn', OK: 'ok' } }],
+        defaults: function () { return { unite: 'kg', quantite: 0, seuil: 2 }; },
+        seed: function () { return [['Viande de zébu', 14, 'kg', 5], ['Brèdes mafana', 6, 'botte', 4], ['Riz', 48, 'kg', 15], ['Poulet', 3, 'pièce', 4], ['Lait de coco', 8, 'litre', 3], ['Oignons', 0, 'kg', 2]].map(function (a) { return { ingredient: a[0], quantite: a[1], unite: a[2], seuil: a[3] }; }); }
+      },
+      achats: {
+        addLabel: 'Nouvel achat', savedNew: 'Achat enregistré, stock mis à jour.', total: function (r) { return r.montant; },
+        sort: function (a, b) { return b.date.localeCompare(a.date); },
+        cols: [{ k: 'date', label: 'Date', type: 'date', req: 1 }, { k: 'fournisseur', label: 'Fournisseur' }, { k: 'ingredient', label: 'Ingrédient', req: 1, opts: function (DB) { return DB.stock.map(function (s) { return s.ingredient; }); } }, { k: 'quantite', label: 'Quantité', type: 'num', req: 1 }, { k: 'montant', label: 'Montant', type: 'money', req: 1 }],
+        defaults: function (DB, H) { return { date: H.today(), fournisseur: 'Marché Analakely', ingredient: DB.stock[0].ingredient }; },
+        onSave: function (r, DB, H, old) { var s = function (n) { return DB.stock.find(function (x) { return x.ingredient === n; }); }; if (old && s(old.ingredient)) s(old.ingredient).quantite = +s(old.ingredient).quantite - +old.quantite; if (s(r.ingredient)) s(r.ingredient).quantite = +s(r.ingredient).quantite + +r.quantite; },
+        seed: function (H) { return [{ date: H.d(-1), fournisseur: 'Boucherie Ambohipo', ingredient: 'Viande de zébu', quantite: 10, montant: 180000 }, { date: H.d(-2), fournisseur: 'Marché Analakely', ingredient: 'Brèdes mafana', quantite: 8, montant: 16000 }, { date: H.d(-4), fournisseur: 'Grossiste riz', ingredient: 'Riz', quantite: 50, montant: 140000 }]; }
+      },
+      depenses: {
+        addLabel: 'Nouvelle dépense', total: function (r) { return r.montant; }, sort: function (a, b) { return b.date.localeCompare(a.date); },
+        cols: [{ k: 'date', label: 'Date', type: 'date', req: 1 }, { k: 'libelle', label: 'Libellé', req: 1 }, { k: 'categorie', label: 'Catégorie', opts: ['Gaz', 'Électricité', 'Salaires', 'Loyer', 'Divers'] }, { k: 'montant', label: 'Montant', type: 'money', req: 1 }],
+        defaults: function (DB, H) { return { date: H.today(), categorie: 'Divers' }; },
+        seed: function (H) { return [{ date: H.d(-2), libelle: 'Recharge gaz cuisine', categorie: 'Gaz', montant: 120000 }, { date: H.d(-7), libelle: 'Salaires extras', categorie: 'Salaires', montant: 150000 }]; }
+      }
+    },
+    kpis: function (DB, H) {
+      var t = DB.commandes.filter(function (c) { return c.date === H.today(); }), ca = t.reduce(function (a, c) { return a + c.qte * c.prix; }, 0);
+      var low = DB.stock.filter(function (s) { return +s.quantite <= +s.seuil; }).length, enc = DB.commandes.filter(function (c) { return c.statut === 'En cuisine'; }).length;
+      return [{ label: 'Chiffre d\'affaires du jour', value: H.money(ca), tone: 'up' }, { label: 'Commandes du jour', value: String(t.length), sub: enc + ' en cuisine' }, { label: 'Dépenses du mois', value: H.money(H.sum(DB.depenses.filter(function (d) { return d.date.slice(0, 7) === H.month(); }), 'montant') + H.sum(DB.achats.filter(function (d) { return d.date.slice(0, 7) === H.month(); }), 'montant')), sub: 'achats compris', tone: 'down' }, { label: 'Ingrédients à racheter', value: String(low), tone: low ? 'warn' : '' }];
+    },
+    chart: function (DB, H) { return { title: 'Évolution des ventes, 7 derniers jours', short: function (v) { return Math.round(v / 1000) + ' k'; }, points: H.last7(DB.commandes.map(function (c) { return { date: c.date, t: c.qte * c.prix }; }), 'date', 't') }; },
+    lists: function (DB, H) {
+      var top = {}; DB.commandes.forEach(function (c) { top[c.plat] = (top[c.plat] || 0) + +c.qte; });
+      return [{ title: 'Plats les plus vendus (14 jours)', rows: Object.keys(top).sort(function (a, b) { return top[b] - top[a]; }).slice(0, 5).map(function (k) { return [k, '', top[k] + ' vendus', 'ok']; }) },
+        { title: 'En cuisine maintenant', empty: 'Aucune commande en attente.', rows: DB.commandes.filter(function (c) { return c.statut === 'En cuisine'; }).map(function (c) { return [c.plat + ' × ' + c.qte, c.table, 'En cuisine', 'warn']; }) }];
+    }
+  };
+
+  /* ===================== GOLDEN BOUTIQUE — import et vente ===================== */
+  CONFIGS.golden = {
+    id: 'golden', app: 'Golden Boutique', sub: 'Import et vente', initial: 'G', seed: 31,
+    colors: { side: '#17140F', sideFg: '#EFE6D2', acc: '#B8860B', accInk: '#1A1200', soft: '#F7EFD9' },
+    users: [{ u: 'gerant', p: 'demo123', name: 'Super', role: 'Administrateur' }, { u: 'vendeuse', p: 'demo123', name: 'Vendeuse', role: 'Boutique' }],
+    quick: { label: 'Nouvelle vente', table: 'ventes' },
+    menu: [
+      { id: 'dash', label: 'Tableau de bord', hello: function (u) { return 'Bonjour, ' + u.name; } },
+      { id: 'produits', label: 'Produits et stock', table: 'produits' },
+      { id: 'ventes', label: 'Ventes', table: 'ventes' },
+      { id: 'commandes', label: 'Achats à l\'étranger', table: 'commandes', badge: function (DB) { return DB.commandes.filter(function (c) { return c.statut !== 'Reçue'; }).length; } },
+      { id: 'fournisseurs', label: 'Fournisseurs', table: 'fournisseurs' }
+    ],
+    tables: {
+      produits: {
+        addLabel: 'Nouveau produit', intro: 'Le coût de revient inclut l\'achat, le transport et la douane : la marge est calculée toute seule.',
+        cols: [{ k: 'nom', label: 'Produit', req: 1 }, { k: 'categorie', label: 'Catégorie', opts: ['Vêtements', 'Chaussures', 'Sacs', 'Accessoires', 'Électronique'] }, { k: 'achat', label: 'Prix d\'achat', type: 'money' }, { k: 'frais', label: 'Transport + douane / pièce', type: 'money' }, { k: 'prix', label: 'Prix de vente', type: 'money', req: 1 }, { k: 'stock', label: 'Stock', type: 'num' },
+          { k: 'marge', label: 'Marge', calc: function (r) { var c = +r.achat + +r.frais; return r.prix ? Math.round((r.prix - c) / r.prix * 100) + ' %' : '—'; } }],
+        defaults: function () { return { categorie: 'Vêtements', stock: 0, frais: 0 }; },
+        seed: function () { return [['Robe d\'été', 'Vêtements', 18000, 6000, 45000, 24], ['Jean slim', 'Vêtements', 22000, 7000, 55000, 31], ['Baskets blanches', 'Chaussures', 35000, 12000, 89000, 12], ['Sac à main cuir', 'Sacs', 40000, 14000, 98000, 7], ['Montre fantaisie', 'Accessoires', 9000, 3000, 25000, 40], ['Écouteurs sans fil', 'Électronique', 28000, 8000, 65000, 3]].map(function (a) { return { nom: a[0], categorie: a[1], achat: a[2], frais: a[3], prix: a[4], stock: a[5] }; }); }
+      },
+      ventes: {
+        addLabel: 'Nouvelle vente', savedNew: 'Vente enregistrée, stock mis à jour.', total: function (r) { return r.qte * r.prix; },
+        sort: function (a, b) { return (b.date + b.id).localeCompare(a.date + a.id); },
+        cols: [{ k: 'date', label: 'Date', type: 'date', req: 1 }, { k: 'client', label: 'Client' }, { k: 'produit', label: 'Produit', req: 1, opts: function (DB) { return DB.produits.map(function (p) { return p.nom; }); } }, { k: 'qte', label: 'Quantité', type: 'num', req: 1 }, { k: 'prix', label: 'Prix', type: 'money', req: 1 }, { k: 'paiement', label: 'Paiement', opts: ['Espèces', 'MVola', 'Orange Money', 'Carte'] }, { k: 'total', label: 'Total', type: 'money', calc: function (r) { return r.qte * r.prix; } }],
+        defaults: function (DB, H) { var p = DB.produits[0]; return { date: H.today(), client: 'Cliente boutique', produit: p.nom, qte: 1, prix: p.prix, paiement: 'Espèces' }; },
+        live: function (r, k, DB) { if (k === 'produit') { var p = stockOf(DB, r.produit); if (p) r.prix = p.prix; } },
+        check: function (r, DB, H, old) { var p = stockOf(DB, r.produit); var dispo = p ? +p.stock + (old && old.produit === r.produit ? +old.qte : 0) : 0; if (p && +r.qte > dispo) return 'Stock insuffisant (disponible : ' + dispo + ').'; },
+        onSave: function (r, DB, H, old) { if (old) { var po = stockOf(DB, old.produit); if (po) po.stock = +po.stock + +old.qte; } var p = stockOf(DB, r.produit); if (p) p.stock = +p.stock - +r.qte; },
+        onDelete: function (r, DB) { var p = stockOf(DB, r.produit); if (p) p.stock = +p.stock + +r.qte; },
+        seed: function (H) { var out = [], P = [['Robe d\'été', 45000], ['Jean slim', 55000], ['Baskets blanches', 89000], ['Montre fantaisie', 25000], ['Sac à main cuir', 98000]]; for (var d = 13; d >= 0; d--) for (var i = 0; i < H.int(1, 4); i++) { var p = H.pick(P); out.push({ date: H.d(-d), client: H.pick(['Cliente boutique', 'Cliente boutique', 'Commande Facebook']), produit: p[0], qte: H.int(1, 2), prix: p[1], paiement: H.pick(['Espèces', 'MVola', 'Orange Money']) }); } return out; }
+      },
+      commandes: {
+        addLabel: 'Nouvelle commande', total: function (r) { return r.montant; },
+        cols: [{ k: 'ref', label: 'Commande', req: 1 }, { k: 'fournisseur', label: 'Fournisseur', opts: function (DB) { return DB.fournisseurs.map(function (f) { return f.nom; }); } }, { k: 'date', label: 'Date de commande', type: 'date' }, { k: 'articles', label: 'Articles' }, { k: 'montant', label: 'Montant total', type: 'money' }, { k: 'statut', label: 'Statut', opts: ['Commandée', 'En mer', 'En douane', 'Reçue'], badge: { 'Commandée': 'info', 'En mer': 'warn', 'En douane': 'warn', 'Reçue': 'ok' } }],
+        defaults: function (DB, H) { return { ref: 'CMD-' + (30 + DB.commandes.length), date: H.today(), statut: 'Commandée', fournisseur: DB.fournisseurs[0].nom }; },
+        seed: function (H) { return [{ ref: 'CMD-24', fournisseur: 'Guangzhou Textile (exemple)', date: H.d(-12), articles: 'Robes, jeans (3 colis)', montant: 2400000, statut: 'En mer' }, { ref: 'CMD-23', fournisseur: 'Yiwu Accessoires (exemple)', date: H.d(-26), articles: 'Montres, sacs', montant: 1650000, statut: 'En douane' }, { ref: 'CMD-22', fournisseur: 'Guangzhou Textile (exemple)', date: H.d(-48), articles: 'Baskets', montant: 1900000, statut: 'Reçue' }]; }
+      },
+      fournisseurs: {
+        addLabel: 'Nouveau fournisseur',
+        cols: [{ k: 'nom', label: 'Nom', req: 1 }, { k: 'pays', label: 'Pays', opts: ['Chine', 'Dubaï', 'Turquie', 'Maurice', 'Madagascar'] }, { k: 'contact', label: 'Contact' }],
+        seed: function () { return [{ nom: 'Guangzhou Textile (exemple)', pays: 'Chine', contact: 'WeChat : gz-textile' }, { nom: 'Yiwu Accessoires (exemple)', pays: 'Chine', contact: 'WeChat : yiwu-acc' }]; }
+      }
+    },
+    kpis: function (DB, H) {
+      var w = DB.ventes.filter(function (v) { return v.date >= H.d(-6); }), ca = w.reduce(function (a, v) { return a + v.qte * v.prix; }, 0);
+      var val = DB.produits.reduce(function (a, p) { return a + p.stock * (+p.achat + +p.frais); }, 0), cours = DB.commandes.filter(function (c) { return c.statut !== 'Reçue'; });
+      return [{ label: 'CA de la semaine', value: H.money(ca), sub: w.length + ' ventes', tone: 'up' }, { label: 'CA aujourd\'hui', value: H.money(H.sum(DB.ventes.filter(function (v) { return v.date === H.today(); }).map(function (v) { return { t: v.qte * v.prix }; }), 't')) }, { label: 'Valeur du stock', value: H.money(val), sub: 'au coût de revient' }, { label: 'Arrivages en cours', value: String(cours.length), sub: H.money(H.sum(cours, 'montant')), tone: 'warn' }];
+    },
+    chart: function (DB, H) { return { title: 'Chiffre d\'affaires de la semaine', short: function (v) { return Math.round(v / 1000) + ' k'; }, points: H.last7(DB.ventes.map(function (v) { return { date: v.date, t: v.qte * v.prix }; }), 'date', 't') }; },
+    lists: function (DB) { return [{ title: 'Arrivages', rows: DB.commandes.map(function (c) { return [c.ref, c.articles, c.statut, c.statut === 'Reçue' ? 'ok' : 'warn']; }) }, { title: 'Stock faible', empty: 'Aucun produit en stock faible.', rows: DB.produits.filter(function (p) { return +p.stock <= 5; }).map(function (p) { return [p.nom, p.categorie, p.stock + ' en stock', +p.stock ? 'warn' : 'bad']; }) }]; }
+  };
+
+  /* ===================== TRANO — gestion hôtelière ===================== */
+  var chambre = function (DB, n) { return DB.chambres.find(function (c) { return c.numero === n; }); };
+  CONFIGS.trano = {
+    id: 'trano', app: 'Trano', sub: 'Hôtel Vanille (démo)', initial: 'T', seed: 41,
+    colors: { side: '#0D2A6E', sideFg: '#D6E0F5', acc: '#E8730C', soft: '#FDEBD9' },
+    users: [{ u: 'reception', p: 'demo123', name: 'Réception', role: 'Réceptionniste' }, { u: 'gerant', p: 'demo123', name: 'Gérant', role: 'Administrateur' }],
+    quick: { label: 'Nouvelle réservation', table: 'reservations' },
+    menu: [
+      { id: 'dash', label: 'Tableau de bord' },
+      { id: 'reservations', label: 'Réservations', table: 'reservations', badge: function (DB) { return DB.reservations.filter(function (r) { return r.statut === 'En attente'; }).length; } },
+      { id: 'chambres', label: 'Chambres', table: 'chambres' },
+      { id: 'menage', label: 'Ménage', table: 'chambres_menage', badge: function (DB) { return DB.chambres.filter(function (c) { return c.statut === 'À nettoyer'; }).length; } },
+      { id: 'paiements', label: 'Facturation', table: 'paiements' },
+      { id: 'clients', label: 'Clients', table: 'clients' }
+    ],
+    tables: {
+      reservations: {
+        addLabel: 'Nouvelle réservation', intro: 'Passez une réservation à « Arrivé » : la chambre devient occupée. À « Parti » : elle part au ménage.',
+        sort: function (a, b) { return b.arrivee.localeCompare(a.arrivee); }, total: function (r) { return r.montant; },
+        cols: [{ k: 'client', label: 'Client', req: 1 }, { k: 'chambre', label: 'Chambre', req: 1, opts: function (DB) { return DB.chambres.map(function (c) { return c.numero; }); } }, { k: 'formule', label: 'Formule', opts: ['Nuitée', 'Journée', '2 heures', '24 heures'] }, { k: 'arrivee', label: 'Arrivée', type: 'date', req: 1 }, { k: 'depart', label: 'Départ', type: 'date' },
+          { k: 'statut', label: 'Statut', opts: ['En attente', 'Confirmée', 'Arrivé', 'Parti', 'Annulée'], badge: { 'En attente': 'warn', 'Confirmée': 'info', 'Arrivé': 'ok', 'Parti': '', 'Annulée': 'bad' } }, { k: 'montant', label: 'Montant', type: 'money' }],
+        defaults: function (DB, H) { var c = DB.chambres.find(function (x) { return x.statut === 'Libre'; }) || DB.chambres[0]; return { chambre: c.numero, formule: 'Nuitée', arrivee: H.today(), depart: H.d(1), statut: 'Confirmée', montant: c.prix }; },
+        live: function (r, k, DB) { if (k === 'chambre' || k === 'formule') { var c = chambre(DB, r.chambre); if (c) r.montant = Math.round(c.prix * ({ 'Nuitée': 1, 'Journée': 0.6, '2 heures': 0.35, '24 heures': 1.3 }[r.formule] || 1)); } },
+        check: function (r, DB, H, old) { if (r.depart && r.depart < r.arrivee) return 'Le départ est avant l\'arrivée.'; var clash = DB.reservations.find(function (x) { return x.id !== (old && old.id) && x.chambre === r.chambre && ['Confirmée', 'Arrivé'].indexOf(x.statut) >= 0 && x.arrivee < (r.depart || r.arrivee) && (x.depart || x.arrivee) > r.arrivee; }); if (clash && ['Confirmée', 'Arrivé'].indexOf(r.statut) >= 0) return 'Chambre ' + r.chambre + ' déjà réservée par ' + clash.client + ' sur ces dates.'; },
+        onSave: function (r, DB) { var c = chambre(DB, r.chambre); if (!c) return; if (r.statut === 'Arrivé') c.statut = 'Occupée'; else if (r.statut === 'Parti') c.statut = 'À nettoyer'; else if (r.statut === 'Confirmée' && c.statut === 'Libre') c.statut = 'Réservée'; },
+        seed: function (H) { return [['Rakoto Hery', '101', 'Nuitée', -1, 1, 'Arrivé', 85000], ['Rasoa Fara', '102', 'Nuitée', 0, 2, 'Confirmée', 85000], ['M. Dupont', '201', '24 heures', -2, 0, 'Arrivé', 156000], ['Randria Tojo', '103', '2 heures', 0, 0, 'En attente', 30000], ['Ravelo Mamy', '202', 'Nuitée', -3, -1, 'Parti', 120000], ['Mme Andria', '104', 'Journée', 1, 1, 'Confirmée', 51000], ['Rabe Naina', '203', 'Nuitée', -5, -3, 'Parti', 240000]].map(function (a) { return { client: a[0], chambre: a[1], formule: a[2], arrivee: H.d(a[3]), depart: H.d(a[4]), statut: a[5], montant: a[6] }; }); }
+      },
+      chambres: {
+        addLabel: 'Nouvelle chambre',
+        cols: [{ k: 'numero', label: 'Chambre', req: 1 }, { k: 'type', label: 'Type', opts: ['Simple', 'Double', 'Suite'] }, { k: 'prix', label: 'Prix de la nuit', type: 'money', req: 1 }, { k: 'statut', label: 'État', opts: ['Libre', 'Réservée', 'Occupée', 'À nettoyer'], badge: { Libre: 'ok', 'Réservée': 'info', 'Occupée': 'warn', 'À nettoyer': 'bad' } }],
+        defaults: function () { return { type: 'Simple', statut: 'Libre', prix: 85000 }; },
+        seed: function () { return [['101', 'Simple', 85000, 'Occupée'], ['102', 'Simple', 85000, 'Réservée'], ['103', 'Simple', 85000, 'Libre'], ['104', 'Double', 85000, 'Libre'], ['201', 'Double', 120000, 'Occupée'], ['202', 'Double', 120000, 'À nettoyer'], ['203', 'Suite', 120000, 'À nettoyer'], ['301', 'Suite', 180000, 'Libre']].map(function (a) { return { numero: a[0], type: a[1], prix: a[2], statut: a[3] }; }); }
+      },
+      chambres_menage: null,
+      paiements: {
+        addLabel: 'Encaisser un paiement', total: function (r) { return r.montant; }, sort: function (a, b) { return b.date.localeCompare(a.date); },
+        cols: [{ k: 'date', label: 'Date', type: 'date', req: 1 }, { k: 'client', label: 'Client', req: 1 }, { k: 'objet', label: 'Objet' }, { k: 'mode', label: 'Mode', opts: ['Espèces', 'MVola', 'Orange Money', 'Carte bancaire'] }, { k: 'montant', label: 'Montant', type: 'money', req: 1 }],
+        defaults: function (DB, H) { return { date: H.today(), mode: 'Espèces', objet: 'Séjour' }; },
+        seed: function (H) { return [{ date: H.today(), client: 'Rakoto Hery', objet: 'Nuitée ch. 101', mode: 'MVola', montant: 85000 }, { date: H.today(), client: 'M. Dupont', objet: '24 h ch. 201', mode: 'Carte bancaire', montant: 156000 }, { date: H.d(-1), client: 'Ravelo Mamy', objet: 'Nuitée ch. 202', mode: 'Espèces', montant: 120000 }, { date: H.d(-3), client: 'Rabe Naina', objet: '2 nuits ch. 203', mode: 'Orange Money', montant: 240000 }]; }
+      },
+      clients: {
+        addLabel: 'Nouveau client',
+        cols: [{ k: 'nom', label: 'Nom', req: 1 }, { k: 'tel', label: 'Téléphone' }, { k: 'piece', label: 'Pièce d\'identité' }, { k: 'sejours', label: 'Séjours', type: 'num', calc: function (r, DB) { return DB.reservations.filter(function (x) { return x.client === r.nom; }).length; } }],
+        seed: function () { return ['Rakoto Hery', 'Rasoa Fara', 'M. Dupont', 'Randria Tojo', 'Ravelo Mamy'].map(function (n, i) { return { nom: n, tel: '034 00 000 ' + (30 + i), piece: 'CIN n° 1010000' + (10 + i) }; }); }
+      }
+    },
+    kpis: function (DB, H) {
+      var occ = DB.chambres.filter(function (c) { return c.statut === 'Occupée'; }).length, arr = DB.reservations.filter(function (r) { return r.arrivee === H.today() && r.statut !== 'Annulée'; }).length;
+      var men = DB.chambres.filter(function (c) { return c.statut === 'À nettoyer'; }).length;
+      return [{ label: 'Taux d\'occupation', value: Math.round(occ / DB.chambres.length * 100) + ' %', sub: occ + ' chambres sur ' + DB.chambres.length, tone: 'up' }, { label: 'Arrivées du jour', value: String(arr) }, { label: 'Encaissé aujourd\'hui', value: H.money(H.sum(DB.paiements.filter(function (p) { return p.date === H.today(); }), 'montant')) }, { label: 'Chambres à nettoyer', value: String(men), tone: men ? 'warn' : '' }];
+    },
+    chart: function (DB, H) { return { title: 'Encaissements des 7 derniers jours', short: function (v) { return Math.round(v / 1000) + ' k'; }, points: H.last7(DB.paiements, 'date', 'montant') }; },
+    lists: function (DB) { return [{ title: 'État des chambres', rows: DB.chambres.map(function (c) { return ['Chambre ' + c.numero, c.type + ' · ' + c.prix.toLocaleString('fr-FR') + ' Ar', c.statut, { Libre: 'ok', 'Réservée': 'info', 'Occupée': 'warn', 'À nettoyer': 'bad' }[c.statut]]; }) }, { title: 'Réservations à confirmer', empty: 'Aucune réservation en attente.', rows: DB.reservations.filter(function (r) { return r.statut === 'En attente'; }).map(function (r) { return [r.client, 'Chambre ' + r.chambre + ' · ' + r.formule, 'En attente', 'warn']; }) }]; }
+  };
+  /* Le menu Ménage montre les chambres, filtrées et triées par état. */
+  CONFIGS.trano.tables.chambres_menage = Object.assign({}, CONFIGS.trano.tables.chambres, { addLabel: 'Nouvelle chambre', intro: 'Ouvrez une chambre à nettoyer et passez-la à « Libre » une fois prête.', src: 'chambres', sort: function (a, b) { return (a.statut === 'À nettoyer' ? 0 : 1) - (b.statut === 'À nettoyer' ? 0 : 1); } });
+})();
+
+(function(){var c=CONFIGS['comptoir'];window.APP=c;var k=c.colors,r=document.documentElement.style;r.setProperty('--side',k.side);r.setProperty('--side-fg',k.sideFg);r.setProperty('--acc',k.acc);r.setProperty('--soft',k.soft);if(k.accInk)r.setProperty('--acc-ink',k.accInk);})();
+</script>
+<script>
+/* Mini-logiciel de démonstration : connexion, menus, tableau de bord, ajout / modification / suppression.
+   Les données vivent dans ce navigateur et sont effacées à la déconnexion. */
+(function () {
+  var C = window.APP, KEY = 'mini_' + C.id, DB, user = null, page = C.menu[0].id, q = '';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var fmt = function (n) { return Math.round(+n || 0).toLocaleString('fr-FR').replace(/[  ]/g, ' '); };
+  var money = function (n) { return fmt(n) + ' ' + (C.cur || 'Ar'); };
+  var iso = function (d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  var R = DEMO_RNG(C.seed || 7);
+  var H = {
+    d: function (off) { var x = new Date(); x.setDate(x.getDate() + off); return iso(x); },
+    today: function () { return iso(new Date()); },
+    month: function () { return iso(new Date()).slice(0, 7); },
+    int: function (a, b) { return a + Math.floor(R() * (b - a + 1)); },
+    pick: function (a) { return a[Math.floor(R() * a.length)]; },
+    fmt: fmt, money: money,
+    find: function (t, k, v) { return (DB[t] || []).find(function (r) { return r[k] === v; }); },
+    sum: function (rows, k) { return rows.reduce(function (a, r) { return a + (+r[k] || 0); }, 0); },
+    last7: function (rows, dateK, valK) {
+      var out = []; for (var i = 6; i >= 0; i--) { var d = H.d(-i); out.push({ l: new Date(d + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', ''), v: H.sum(rows.filter(function (r) { return r[dateK] === d; }), valK) }); }
+      return out;
+    }
+  };
+  var K = function (tk) { return C.tables[tk].src || tk; };
+  function load() {
+    try { DB = JSON.parse(localStorage.getItem(KEY)); } catch (e) { DB = null; }
+    if (!DB) { DB = {}; Object.keys(C.tables).filter(function (k) { return !C.tables[k].src; }).forEach(function (k) { DB[k] = C.tables[k].seed(H).map(function (r, i) { r.id = k + '-' + i; return r; }); }); save(); }
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) {} }
+  function toast(t, err) { var e = document.createElement('div'); e.className = 'toast' + (err ? ' err' : ''); e.textContent = t; document.body.appendChild(e); setTimeout(function () { e.remove(); }, 2600); }
+
+  /* ---------- connexion ---------- */
+  function renderLogin(err) {
+    document.getElementById('app').innerHTML =
+      '<div class="login"><form class="lcard" id="lf" novalidate><div class="lhead"><span class="mark">' + esc(C.initial) + '</span><div><b>' + esc(C.app) + '</b><small>' + esc(C.sub) + '</small></div></div>' +
+      '<h1>Connexion</h1><p class="muted">' + esc(C.welcome || 'Entrez votre identifiant et votre mot de passe.') + '</p>' +
+      (err ? '<div class="note err">' + esc(err) + '</div>' : '') +
+      '<label for="lu">Identifiant</label><input id="lu" autocomplete="username" autocapitalize="none">' +
+      '<label for="lp">Mot de passe</label><input id="lp" type="password" autocomplete="current-password">' +
+      '<button class="btn pri wide" type="submit">Se connecter</button></form></div>';
+    $('#lf').onsubmit = function (e) {
+      e.preventDefault();
+      var u = $('#lu').value.trim().toLowerCase(), p = $('#lp').value;
+      var acc = C.users.find(function (x) { return x.u === u && x.p === p; });
+      if (!acc) return renderLogin('Identifiant ou mot de passe incorrect.');
+      user = acc; page = C.menu[0].id; renderShell();
+    };
+    setTimeout(function () { var i = $('#lu'); if (i) i.focus(); }, 30);
+  }
+  window.DEMO_FILL = function (u, p) { var a = $('#lu'), b = $('#lp'); if (a && b) { a.value = u; b.value = p; b.focus(); } };
+
+  /* ---------- cadre ---------- */
+  function renderShell() {
+    var m = C.menu.find(function (x) { return x.id === page; }), t = m.table && C.tables[m.table];
+    document.getElementById('app').innerHTML =
+      '<div class="shell"><aside class="side"><div class="brand"><span class="mark">' + esc(C.initial) + '</span><div><b>' + esc(C.app) + '</b><small>' + esc(C.sub) + '</small></div></div>' +
+      '<nav class="nav">' + C.menu.map(function (x) { var n = x.badge ? x.badge(DB, H) : 0; return '<button type="button" data-p="' + x.id + '" class="' + (x.id === page ? 'on' : '') + '"><span>' + esc(x.label) + '</span>' + (n ? '<i>' + n + '</i>' : '') + '</button>'; }).join('') + '</nav>' +
+      '<div class="me"><span class="av">' + esc(user.name[0]) + '</span><div><b>' + esc(user.name) + '</b><small>' + esc(user.role) + '</small></div><button type="button" class="out" id="logout" title="Se déconnecter" aria-label="Se déconnecter"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></div></aside>' +
+      '<main class="main"><header class="top"><div><small class="muted">' + esc(m.hello ? m.hello(user) : (C.app + ' · ' + new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }))) + '</small><h2>' + esc(m.label) + '</h2></div><span class="sp"></span>' +
+      (t ? '<input class="search" id="q" placeholder="Rechercher…" value="' + esc(q) + '" aria-label="Rechercher"><button class="btn pri" type="button" id="add">+ ' + esc(t.addLabel || 'Ajouter') + '</button>' : '<button class="btn pri" type="button" id="quick">+ ' + esc(C.quick.label) + '</button>') +
+      '</header><div class="content" id="content"></div></main></div>';
+    document.querySelectorAll('[data-p]').forEach(function (b) { b.onclick = function () { page = b.dataset.p; q = ''; renderShell(); window.scrollTo(0, 0); }; });
+    $('#logout').onclick = function () { window.DEMO_LOGOUT(); };
+    if (t) {
+      $('#add').onclick = function () { form(m.table, null); };
+      $('#q').oninput = function (e) { q = e.target.value; renderTable(m.table); var i = $('#q'); i.focus(); };
+      renderTable(m.table);
+    } else {
+      $('#quick').onclick = function () { form(C.quick.table, null); };
+      renderDash();
+    }
+  }
+
+  /* ---------- tableau de bord ---------- */
+  function renderDash() {
+    var k = C.kpis(DB, H), ch = C.chart(DB, H), lists = C.lists(DB, H);
+    var max = Math.max.apply(null, ch.points.map(function (p) { return p.v; }).concat([1]));
+    $('#content').innerHTML =
+      '<div class="kpis">' + k.map(function (x) { return '<div class="kpi"><span>' + esc(x.label) + '</span><b class="' + (x.tone || '') + '">' + esc(x.value) + '</b>' + (x.sub ? '<small>' + esc(x.sub) + '</small>' : '') + '</div>'; }).join('') + '</div>' +
+      '<div class="grid2"><section class="card"><h3>' + esc(ch.title) + '</h3><div class="bars">' + ch.points.map(function (p, i) {
+        return '<div class="bar"><em>' + esc(ch.short ? ch.short(p.v) : fmt(p.v)) + '</em><span style="height:' + Math.max(2, Math.round(p.v / max * 100)) + '%" class="' + (i === ch.points.length - 1 ? 'hl' : '') + '"></span><small>' + esc(p.l) + '</small></div>';
+      }).join('') + '</div></section>' +
+      lists.map(function (l) { return '<section class="card"><h3>' + esc(l.title) + '</h3>' + (l.rows.length ? '<ul class="list">' + l.rows.map(function (r) { return '<li><div><b>' + esc(r[0]) + '</b><small>' + esc(r[1] || '') + '</small></div><span class="chip ' + (r[3] || '') + '">' + esc(r[2]) + '</span></li>'; }).join('') + '</ul>' : '<p class="muted">' + esc(l.empty || 'Rien à signaler.') + '</p>') + '</section>'; }).join('') + '</div>';
+  }
+
+  /* ---------- listes ---------- */
+  function cell(c, r) {
+    var v = c.calc ? c.calc(r, DB, H) : r[c.k];
+    if (c.type === 'money') return money(v);
+    if (c.type === 'num') return fmt(v);
+    if (c.type === 'date') return v ? new Date(v + 'T12:00').toLocaleDateString('fr-FR') : '—';
+    if (c.badge) return '<span class="chip ' + (c.badge[v] || '') + '">' + esc(v) + '</span>';
+    return esc(v);
+  }
+  function renderTable(tk) {
+    var t = C.tables[tk], rows = DB[K(tk)].slice();
+    if (t.sort) rows.sort(t.sort);
+    if (q) { var s = q.toLowerCase(); rows = rows.filter(function (r) { return JSON.stringify(r).toLowerCase().indexOf(s) >= 0; }); }
+    var cols = t.cols.filter(function (c) { return !c.hide; });
+    var foot = t.total ? '<tfoot><tr><td colspan="' + (cols.length - 1) + '">Total (' + rows.length + ')</td><td class="n">' + money(H.sum(rows.map(function (r) { return { v: t.total(r) }; }), 'v')) + '</td></tr></tfoot>' : '';
+    $('#content').innerHTML = (t.intro ? '<p class="muted intro">' + esc(t.intro) + '</p>' : '') +
+      '<div class="tw"><table><thead><tr>' + cols.map(function (c) { return '<th class="' + (c.type === 'money' || c.type === 'num' ? 'n' : '') + '">' + esc(c.label) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      (rows.length ? rows.map(function (r) { return '<tr data-id="' + r.id + '" tabindex="0">' + cols.map(function (c) { return '<td data-l="' + esc(c.label) + '" class="' + (c.type === 'money' || c.type === 'num' ? 'n' : '') + '">' + cell(c, r) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="' + cols.length + '" class="empty">Aucun élément. Cliquez sur « ' + esc(t.addLabel || 'Ajouter') + ' ».</td></tr>') +
+      '</tbody>' + foot + '</table></div><p class="muted hint">Cliquez sur une ligne pour la modifier ou la supprimer.</p>';
+    document.querySelectorAll('tr[data-id]').forEach(function (tr) {
+      var open = function () { form(tk, DB[K(tk)].find(function (r) { return r.id === tr.dataset.id; })); };
+      tr.onclick = open; tr.onkeydown = function (e) { if (e.key === 'Enter') open(); };
+    });
+  }
+
+  /* ---------- formulaire ---------- */
+  function form(tk, rec) {
+    var t = C.tables[tk], isNew = !rec, r = rec ? JSON.parse(JSON.stringify(rec)) : (t.defaults ? t.defaults(DB, H) : {});
+    var fields = t.cols.filter(function (c) { return !c.calc; });
+    var bg = document.createElement('div'); bg.className = 'mbg';
+    bg.innerHTML = '<form class="modal" novalidate><header><h3>' + esc(isNew ? (t.addLabel || 'Ajouter') : 'Modifier : ' + (r[fields[0].k] || '')) + '</h3><button type="button" class="x" aria-label="Fermer">×</button></header><div class="fbody">' +
+      fields.map(function (c) {
+        var v = r[c.k] == null ? '' : r[c.k], id = 'f_' + c.k;
+        var opts = typeof c.opts === 'function' ? c.opts(DB, H) : c.opts;
+        var input = opts ? '<select id="' + id + '">' + opts.map(function (o) { return '<option ' + (String(o) === String(v) ? 'selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>'
+          : '<input id="' + id + '" type="' + (c.type === 'date' ? 'date' : (c.type === 'money' || c.type === 'num') ? 'number' : 'text') + '" ' + (c.type === 'money' || c.type === 'num' ? 'step="any" inputmode="decimal"' : '') + ' value="' + esc(v) + '">';
+        return '<label for="' + id + '">' + esc(c.label) + (c.req ? ' *' : '') + '</label>' + input + (c.help ? '<small class="muted">' + esc(c.help) + '</small>' : '');
+      }).join('') + '</div><footer>' + (!isNew ? '<button type="button" class="btn danger" id="del">Supprimer</button>' : '') + '<span class="sp"></span><button type="button" class="btn" id="cancel">Annuler</button><button class="btn pri" type="submit">Enregistrer</button></footer></form>';
+    document.body.appendChild(bg);
+    var close = function () { bg.remove(); };
+    bg.querySelector('.x').onclick = close; bg.querySelector('#cancel').onclick = close;
+    bg.onclick = function (e) { if (e.target === bg) close(); };
+    if (t.live) fields.forEach(function (c) { var el = bg.querySelector('#f_' + c.k); el.onchange = function () { var cur = read(); t.live(cur, c.k, DB, H); fields.forEach(function (f) { var e = bg.querySelector('#f_' + f.k); if (cur[f.k] != null && e !== el) e.value = cur[f.k]; }); }; });
+    function read() { var o = Object.assign({}, r); fields.forEach(function (c) { var v = bg.querySelector('#f_' + c.k).value; o[c.k] = (c.type === 'money' || c.type === 'num') ? (v === '' ? '' : +v) : v.trim(); }); return o; }
+    var d = bg.querySelector('#del');
+    if (d) d.onclick = function () {
+      if (d.dataset.sure) { DB[K(tk)] = DB[K(tk)].filter(function (x) { return x.id !== rec.id; }); if (t.onDelete) t.onDelete(rec, DB, H); save(); close(); toast('Supprimé.'); renderShell(); return; }
+      d.dataset.sure = 1; d.textContent = 'Confirmer la suppression';
+    };
+    bg.querySelector('form').onsubmit = function (e) {
+      e.preventDefault();
+      var o = read(), miss = fields.filter(function (c) { return c.req && (o[c.k] === '' || o[c.k] == null); });
+      if (miss.length) return toast('À remplir : ' + miss.map(function (c) { return c.label; }).join(', '), true);
+      if (t.check) { var err = t.check(o, DB, H, rec); if (err) return toast(err, true); }
+      if (isNew) { o.id = tk + '-' + Date.now(); DB[K(tk)].unshift(o); } else { DB[K(tk)] = DB[K(tk)].map(function (x) { return x.id === o.id ? o : x; }); }
+      if (t.onSave) t.onSave(o, DB, H, rec);
+      save(); close(); toast(isNew ? (t.savedNew || 'Ajouté.') : 'Modifications enregistrées.'); renderShell();
+    };
+    setTimeout(function () { var f = bg.querySelector('input,select'); if (f) f.focus(); }, 30);
+  }
+
+  load(); renderLogin();
+})();
+
+</script>
+<script>
+/* Bandeau « Démo » : identifiants de test, remplissage automatique et remise à zéro. */
+(function () {
+  var C = window.__DEMO || {};
+  var host = document.createElement('div');
+  host.id = 'ampandrana-demo-bar';
+  var POS_OPEN = 'position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom, 0px));z-index:2147483000;width:max-content;max-width:calc(100vw - 24px)';
+  var POS_MIN = 'position:fixed;left:50%;top:calc(6px + env(safe-area-inset-top, 0px));transform:translateX(-50%);z-index:2147483000;width:max-content;max-width:calc(100vw - 24px)';
+  host.setAttribute('style', POS_OPEN);
+  var root = host.attachShadow ? host.attachShadow({ mode: 'open' }) : host;
+  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var accounts = (C.accounts || []).map(function (a, i) {
+    return '<li><div class="who"><b>' + esc(a.label) + '</b><span>' + esc(a.userLabel || 'Identifiant') + ' <code>' + esc(a.user) + '</code>' + (a.pass ? ' · ' + esc(a.passLabel || 'Mot de passe') + ' <code>' + esc(a.pass) + '</code>' : '') + '</span></div>' +
+      (C.canFill && a.pass ? '<button type="button" data-fill="' + i + '">Utiliser</button>' : '') + '</li>';
+  }).join('');
+  root.innerHTML = '<style>' +
+    ':host{all:initial}*{box-sizing:border-box;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}' +
+    '.bar{background:#10162B;color:#F2F4FA;border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);overflow:hidden}' +
+    '.head{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 12px}' +
+    '.back{color:#F2F4FA;text-decoration:none;font-weight:700;font-size:13px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.1);white-space:nowrap}.back:hover{background:rgba(255,255,255,.18)}' +
+    '.tag{background:#F47B0F;color:#1A0E02;font-weight:800;font-size:11px;letter-spacing:.08em;padding:3px 8px;border-radius:999px}' +
+    '.title{font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' +
+    'button{font:inherit;cursor:pointer;border-radius:10px;min-height:34px;padding:0 12px;font-size:13px;font-weight:700}' +
+    '.tog{background:rgba(255,255,255,.1);color:#F2F4FA;border:0;margin-left:auto}' +
+    '.body{padding:0 14px 14px;display:grid;gap:10px;max-width:440px}' +
+    'ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}' +
+    'li{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border-radius:12px;padding:8px 10px}' +
+    '.who{display:grid;gap:2px;min-width:0;flex:1;font-size:12.5px;color:#C9D1E8}.who b{color:#fff;font-size:13px}' +
+    'code{font-family:ui-monospace,Menlo,monospace;background:rgba(244,123,15,.18);color:#FFD2A8;padding:1px 6px;border-radius:6px;font-size:12.5px}' +
+    'li button{background:#F47B0F;color:#1A0E02;border:0}' +
+    'p{margin:0;font-size:12.5px;line-height:1.45;color:#C9D1E8}' +
+    '.reset{background:transparent;color:#FFB4A8;border:1px solid rgba(255,180,168,.4);justify-self:start}' +
+    'button:focus-visible{outline:2px solid #F47B0F;outline-offset:2px}' +
+    '</style>' +
+    '<div class="bar"><div class="head">' + (C.back ? '<a class="back" href="' + esc(C.back) + '">← Portfolio</a>' : '') + '<span class="tag">DÉMO</span><span class="title">' + esc(C.title || 'Version de démonstration') + '</span><button type="button" class="tog" aria-expanded="true">Réduire</button></div>' +
+    '<div class="body"><p>' + esc(C.hint || 'Connectez-vous avec un compte de test.') + '</p><ul>' + accounts + '</ul>' +
+    '<p>Tout ce que vous saisissez est effacé dès que vous vous déconnectez.</p>' +
+    '<button type="button" class="reset">Effacer mes saisies et recommencer</button></div></div>';
+  var body = root.querySelector('.body'), tog = root.querySelector('.tog');
+  var title = root.querySelector('.title');
+  var setOpen = function (open) { body.hidden = !open; body.style.display = open ? '' : 'none'; title.style.display = open ? '' : 'none'; tog.textContent = open ? 'Réduire' : 'Comptes de test'; tog.setAttribute('aria-expanded', String(open)); host.setAttribute('style', open ? POS_OPEN : POS_MIN); };
+  tog.onclick = function (e) { e.stopPropagation(); setOpen(body.hidden); };
+  /* Dès que le visiteur utilise le logiciel, le bandeau se range en haut de l'écran. */
+  document.addEventListener('pointerdown', function (e) { if (!body.hidden && e.target !== host) setOpen(false); }, true);
+  root.querySelector('.reset').onclick = function () { window.DEMO_LOGOUT(); };
+  Array.prototype.forEach.call(root.querySelectorAll('[data-fill]'), function (b) {
+    b.onclick = function () { var a = C.accounts[+b.dataset.fill]; try { window.DEMO_FILL && window.DEMO_FILL(a.user, a.pass); } catch (e) {} setOpen(false); };
+  });
+  var add = function () { document.body.appendChild(host); };
+  if (document.body) add(); else document.addEventListener('DOMContentLoaded', add);
+  /* L'application peut remplacer tout le contenu de la page : on remet le bandeau en place. */
+  setInterval(function () { if (!host.isConnected && document.body) add(); }, 600);
+})();
+
+</script>
+</html>

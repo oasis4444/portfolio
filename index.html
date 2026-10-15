@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Création Logiciel Sur Mesure</title>
+<meta name="description" content="Création Logiciel Sur Mesure : logiciels de gestion faits pour votre entreprise. Testez nos démos en ligne : caisse, stock, restaurant, hôtel, association, budget familial.">
+<meta name="theme-color" content="#4B2FE0">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1E1B4B; --text:#4B4870; --mut:#6E6A92; --line:#E6E2F7; --bg:#F5F3FF; --surf:#FFFFFF;
+  --violet:#5B3DF5; --violet-d:#4328D6; --violet-soft:#EDE9FE;
+  --wa:#15803D; --wa-bg:#F0FDF4; --wa-line:#BBF7D0; --wa-btn:#16A34A;
+  --grad:linear-gradient(120deg,#4328D6 0%,#5B3DF5 45%,#9B4DE0 80%,#E0559E 100%);
+  color-scheme:light;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+svg{flex:none}
+.wrap{width:100%;max-width:1280px;margin:0 auto;padding-inline:24px}
+h1,h2,h3{line-height:1.08;letter-spacing:-.025em;text-wrap:balance}
+.eyebrow{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--violet)}
+:focus-visible{outline:3px solid #A78BFA;outline-offset:3px;border-radius:8px}
+
+/* boutons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border-radius:14px;font-weight:700;text-decoration:none;border:1.5px solid transparent;cursor:pointer;font-size:16px;transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn.white{background:#fff;color:var(--ink)}
+.btn.white svg{color:var(--wa-btn)}
+.btn.ghost{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff}
+.btn.violet{background:var(--violet);color:#fff}
+.btn.violet:hover{background:var(--violet-d)}
+.btn.green{background:var(--wa);color:#fff}
+
+/* en-tête */
+header.top{background:rgba(255,255,255,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+.top .wrap{display:flex;align-items:center;gap:16px;min-height:80px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;margin-right:auto;min-width:0}
+.brand .logo{width:58px;height:48px;border-radius:12px;background:#fff;display:grid;place-items:center;border:1px solid var(--line)}
+.brand .logo img{width:50px;height:auto}
+.brand b{display:block;font-size:19px;font-weight:800;letter-spacing:-.01em;line-height:1.15}
+.brand small{display:block;color:var(--mut);font-size:13.5px;font-weight:500}
+nav.menu{display:flex;align-items:center;gap:2px}
+nav.menu a{text-decoration:none;font-weight:500;color:#3F3C66;padding:10px 12px;border-radius:10px;font-size:15.5px;white-space:nowrap}
+nav.menu a:hover{background:var(--bg);color:var(--ink)}
+.top .wa-top{min-height:46px;padding:0 20px;border-radius:12px;margin-left:8px}
+
+/* accroche */
+.hero{padding:32px 0 24px}
+.hero-box{position:relative;overflow:hidden;background:var(--grad);border-radius:32px;color:#fff;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:48px;align-items:center;padding:64px clamp(24px,5vw,64px)}
+.hero-box::before{content:"";position:absolute;right:-110px;top:-110px;width:420px;height:420px;border-radius:50%;background:rgba(255,255,255,.09)}
+.hero-box::after{content:"";position:absolute;left:56%;bottom:-180px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero-box>*{position:relative;z-index:1}
+.pill{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:8px 16px;border-radius:999px;font-size:14.5px;font-weight:600}
+.hero h1{font-size:clamp(2.4rem,5.2vw,4.1rem);font-weight:800;margin:28px 0 22px;letter-spacing:-.04em}
+.hero p.lead{font-size:clamp(1.05rem,1.6vw,1.2rem);color:rgba(255,255,255,.88);max-width:36em}
+.hero .actions{display:flex;flex-wrap:wrap;gap:14px;margin:34px 0 28px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;list-style:none}
+.chips li{background:rgba(255,255,255,.16);padding:7px 14px;border-radius:999px;font-size:14.5px;font-weight:600}
+
+/* carte d'aperçu (vraie capture) */
+.preview{background:#fff;color:var(--ink);border-radius:24px;padding:18px;box-shadow:0 40px 80px -30px rgba(20,8,80,.6)}
+.preview .ph{display:flex;align-items:center;gap:12px;padding:2px 4px 14px}
+.preview .ph .ic{width:38px;height:38px;border-radius:11px;background:var(--violet-soft);color:var(--violet);display:grid;place-items:center}
+.preview .ph b{font-size:16.5px}
+.preview .ph .tag{margin-left:auto}
+.preview .shot{border-radius:14px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/10;background:#F7F7FB}
+.preview .shot img{width:100%;height:100%;object-fit:cover;object-position:top left}
+.preview .pf{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:14px 4px 2px;font-size:14px;color:var(--text)}
+.preview .pf a{margin-left:auto;font-weight:700;color:var(--violet);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.dots{display:flex;gap:6px}.dots i{width:9px;height:9px;border-radius:50%;background:#D7D3EE}.dots i.on{background:var(--violet);width:22px;border-radius:9px}
+
+/* avantages */
+.benefits{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;padding:0 0 40px}
+.benefit{background:#fff;border:1px solid var(--line);border-radius:22px;padding:24px}
+.benefit .ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;margin-bottom:22px}
+.benefit h3{font-size:19px;letter-spacing:-.01em;margin-bottom:8px}
+.benefit p{color:var(--text);font-size:15.5px}
+
+/* sections */
+section.block{padding:76px 0 20px;scroll-margin-top:80px}
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 40px;margin-bottom:30px}
+.head h2{font-size:clamp(2rem,4.2vw,3rem);font-weight:800;margin-top:12px;max-width:16em;letter-spacing:-.035em}
+.head p{color:var(--text);font-size:1.12rem;max-width:40em;margin-top:14px}
+.count{color:var(--mut);font-weight:700}
+.tag{display:inline-block;font-size:13px;font-weight:700;padding:5px 11px;border-radius:999px;white-space:nowrap}
+
+/* démos en ligne */
+.demo-note{display:flex;flex-wrap:wrap;gap:10px 22px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 20px;margin-bottom:22px;color:var(--text);font-weight:600;font-size:15px}
+.demo-note span{display:inline-flex;align-items:center;gap:8px}
+.demo-note svg{color:var(--violet)}
+.demos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.demo{background:#fff;border:1px solid var(--line);border-radius:24px;overflow:hidden;display:flex;flex-direction:column;min-width:0;transition:box-shadow .2s,transform .2s}
+.demo:hover{box-shadow:0 24px 50px -24px rgba(67,40,214,.35);transform:translateY(-2px)}
+.demo .shot{display:block;padding:20px 20px 0;background:var(--tint)}
+.demo .win{border-radius:12px 12px 0 0;overflow:hidden;background:#fff;box-shadow:0 18px 40px -12px rgba(30,27,75,.35)}
+.demo .bar{height:22px;display:flex;align-items:center;gap:6px;padding:0 10px;background:#F1EFFA}
+.demo .bar i{width:8px;height:8px;border-radius:50%;background:#F26B5B}.demo .bar i:nth-child(2){background:#F5B83D}.demo .bar i:nth-child(3){background:#3CC26B}
+.demo .win img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top left}
+.demo .body{padding:22px 22px 24px;display:flex;flex-direction:column;gap:12px;flex:1}
+.demo h3{font-size:22px;letter-spacing:-.02em}
+.demo p{color:var(--text);font-size:15.5px;flex:1}
+.creds{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:12px;padding:10px 14px;font-size:14.5px;color:var(--text)}
+.creds svg{color:var(--violet)}
+.creds code{font:700 14.5px ui-monospace,Menlo,monospace;color:var(--ink)}
+.demo .acts{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.demo .acts .btn{flex:1;min-height:50px}
+.demo .acts a.alt{font-weight:700;color:var(--violet);text-decoration:none;padding:12px 6px;font-size:15px}
+.demo.wide{grid-column:span 3;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.demo.wide .shot{padding:28px 0 0 28px;display:flex;align-items:flex-end}
+.demo.wide .win{border-radius:12px 0 0 0;width:100%}
+.demo.wide .body{padding:36px 36px 36px;justify-content:center}
+.demo.wide h3{font-size:30px}
+.demo.wide p{flex:none}
+
+/* catalogue */
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.filters button{font:inherit;font-weight:700;font-size:15.5px;background:#fff;border:1.5px solid var(--line);color:var(--ink);min-height:46px;padding:0 20px;border-radius:999px;cursor:pointer}
+.filters button:hover{border-color:#C9C1F5}
+.filters button[aria-pressed="true"]{background:var(--violet);border-color:var(--violet);color:#fff}
+.cat{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.item{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.item[hidden]{display:none}
+.item .row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.item .ic{width:54px;height:54px;border-radius:14px;display:grid;place-items:center}
+.item h3{font-size:19px;letter-spacing:-.01em}
+.item p{color:var(--text);font-size:15px;flex:1}
+.mini{display:flex;flex-wrap:wrap;gap:6px;list-style:none}
+.mini li{border:1px solid var(--line);background:#FAF9FF;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:600;color:#3F3C66}
+.item .cta{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.item .cta a{display:flex;align-items:center;justify-content:center;gap:9px;min-height:48px;border-radius:12px;font-weight:700;text-decoration:none;font-size:15.5px}
+.item .cta .try{background:var(--violet);color:#fff}
+.item .cta .try:hover{background:var(--violet-d)}
+.item .cta .ask{background:var(--wa-bg);border:1.5px solid var(--wa-line);color:var(--wa)}
+.item .cta .ask:hover{background:#DCFCE7}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:var(--wa);background:var(--wa-bg);border-radius:999px;padding:4px 10px}
+.live::before{content:"";width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 3px #BBF7D0}
+.custom{margin-top:22px;border:1.5px dashed #CFC6F5;border-radius:22px;background:#fff;padding:24px 28px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px}
+.custom b{font-size:19px;display:block;margin-bottom:4px}
+.custom span{color:var(--text)}
+
+/* couleurs des catégories */
+.c-com{--cbg:#EDE9FE;--cfg:#6D28D9}
+.c-fin{--cbg:#DCFCE7;--cfg:#15803D}
+.c-ent{--cbg:#DBEAFE;--cfg:#1D4ED8}
+.c-met{--cbg:#FFEDD5;--cfg:#C2410C}
+.c-web{--cbg:#FCE7F3;--cfg:#BE185D}
+.c-com .ic,.c-fin .ic,.c-ent .ic,.c-met .ic,.c-web .ic,.c-com.tag,.c-fin.tag,.c-ent.tag,.c-met.tag,.c-web.tag{background:var(--cbg);color:var(--cfg)}
+
+/* flexibilité */
+.flex3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.flex3>div{border-radius:26px;padding:34px}
+.flex3 .intro{background:#fff;border:1px solid var(--line)}
+.flex3 .intro .eyebrow{color:#C026D3}
+.flex3 .intro h2{font-size:clamp(1.9rem,3.4vw,2.6rem);font-weight:800;margin:14px 0 16px;letter-spacing:-.035em}
+.flex3 p{color:var(--text)}
+.flex3 .cloud{background:#EDE9FE}.flex3 .off{background:#FCE7F3}
+.flex3 .big{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;color:#fff;margin-bottom:28px}
+.flex3 h3{font-size:23px;margin-bottom:10px}
+
+/* méthode */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;list-style:none}
+.steps li{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px}
+.steps .n{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#5B3DF5,#B14FD8);color:#fff;font-weight:800;display:grid;place-items:center;margin-bottom:22px}
+.steps b{display:block;font-size:18px;margin-bottom:6px}
+.steps span{color:var(--text);font-size:15.5px}
+
+/* contact */
+.contact{margin:84px 0 70px;scroll-margin-top:80px}
+.cbox{position:relative;overflow:hidden;background:var(--grad);color:#fff;border-radius:32px;padding:60px clamp(24px,5vw,60px);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:40px;align-items:center}
+.cbox::before{content:"";position:absolute;left:-90px;top:-90px;width:330px;height:330px;border-radius:50%;background:rgba(255,255,255,.08)}
+.cbox>*{position:relative}
+.cbox h2{font-size:clamp(2rem,4.4vw,3.1rem);font-weight:800;letter-spacing:-.04em}
+.cbox p{color:rgba(255,255,255,.88);font-size:1.12rem;margin:16px 0 30px;max-width:32em}
+.clist{display:grid;gap:14px}
+.citem{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:18px;padding:16px 20px;text-decoration:none;color:#fff;min-width:0}
+a.citem:hover{background:rgba(255,255,255,.22)}
+.citem .ic{width:46px;height:46px;border-radius:12px;background:#fff;display:grid;place-items:center;color:var(--wa)}
+.citem .ic.v{color:var(--violet)}
+.citem div{min-width:0}
+.citem small{display:block;font-size:14px;opacity:.9}
+.citem b{display:block;font-size:clamp(1.05rem,2vw,1.35rem);font-weight:800;overflow-wrap:anywhere}
+footer{background:#fff;border-top:1px solid var(--line)}
+footer .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding-block:26px;color:var(--text);font-size:15px}
+footer b{color:var(--ink)}
+.float{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));display:inline-flex;align-items:center;gap:10px;background:var(--wa);color:#fff;font-weight:800;text-decoration:none;padding:0 22px;height:56px;border-radius:999px;box-shadow:0 14px 30px -8px rgba(21,128,61,.55);z-index:50}
+
+@media (max-width:1100px){
+  .cat{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .demos{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .demo.wide{grid-column:span 2}
+}
+@media (max-width:960px){
+  .hero-box,.cbox{grid-template-columns:minmax(0,1fr)}
+  .benefits,.steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .flex3{grid-template-columns:minmax(0,1fr)}
+  .cat{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .demo.wide{grid-template-columns:minmax(0,1fr)}
+  .demo.wide .shot{padding:20px 20px 0}.demo.wide .win{border-radius:12px 12px 0 0}
+  .demo.wide .body{padding:22px 22px 24px}
+  nav.menu{order:3;width:100%;overflow-x:auto;scrollbar-width:none;margin:0 -8px;padding-bottom:8px}
+  nav.menu::-webkit-scrollbar{display:none}
+}
+@media (max-width:640px){
+  .wrap{padding-inline:16px}
+  .top .wrap{min-height:68px;gap:10px}
+  .brand .logo{width:46px;height:40px}.brand .logo img{width:40px}
+  .brand b{font-size:16.5px}.brand small{font-size:12.5px}
+  .top .wa-top{padding:0 14px;min-height:42px;margin-left:0}
+  .top .wa-top span{display:none}
+  .hero{padding:16px 0}
+  .hero-box{padding:36px 22px;border-radius:26px;gap:34px}
+  .preview .ph .tag{display:none}.preview .ph b{font-size:15.5px}
+  .benefits{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.benefit{padding:18px}.benefit .ic{margin-bottom:14px}.benefit h3{font-size:17px}.benefit p{font-size:14.5px}
+  .hero .actions .btn{width:100%}
+  .steps,.cat,.demos{grid-template-columns:minmax(0,1fr)}
+  .demo.wide{grid-column:auto}
+  .demo.wide h3{font-size:24px}
+  section.block{padding-top:60px}
+  .cbox{padding:40px 22px;border-radius:26px}
+  .cbox .btn{width:100%}
+  .flex3>div{padding:26px}
+  .float span{display:none}.float{width:58px;padding:0;justify-content:center}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2Zm0 18.15c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 4.54 0 8.24 3.7 8.24 8.24 0 4.55-3.7 8.24-8.24 8.24Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.16.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.08.15-1.18-.06-.11-.22-.17-.47-.29Z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M7 4.5v15l12-7.5-12-7.5Z"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.3-9.3M16 7l3 3M14 9l2 2"/></g></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M6 13l6 6 6-6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></g></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m22 7-10 6L2 7"/></g></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></g></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></g></symbol>
+  <symbol id="i-device" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="14" height="11" rx="2"/><rect x="16" y="9" width="6" height="11" rx="1.5"/><path d="M6 19h6"/></g></symbol>
+</svg>
+
+<header class="top"><div class="wrap">
+  <a class="brand" href="#accueil" aria-label="Création Logiciel Sur Mesure, accueil">
+    <span class="logo"><img src="img/logo.png" alt="" width="50" height="31"></span>
+    <span><b>Création Logiciel Sur Mesure</b><small>Logiciels de gestion · Madagascar &amp; international</small></span>
+  </a>
+  <nav class="menu" aria-label="Menu principal">
+    <a href="#demos">Démos en ligne</a><a href="#logiciels">Logiciels</a><a href="#avantages">Avantages</a><a href="#methode">Méthode</a><a href="#contact">Contact</a>
+  </nav>
+  <a class="btn green wa-top" href="https://wa.me/261349382359?text=Bonjour%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20vos%20logiciels." target="_blank" rel="noopener" aria-label="WhatsApp"><svg width="20" height="20"><use href="#i-wa"/></svg><span>WhatsApp</span></a>
+</div></header>
+
+<main>
+<section class="hero" id="accueil"><div class="wrap">
+  <div class="hero-box">
+    <div>
+      <span class="pill"><svg width="17" height="17"><use href="#i-pin"/></svg>Antananarivo, Madagascar · clients dans le monde entier</span>
+      <h1>Des logiciels de gestion faits pour votre entreprise.</h1>
+      <p class="lead">Stock, caisse, comptabilité, facturation, restauration, hôtellerie, applications web et mobiles : nous créons sur mesure, à prix abordable, le logiciel dont votre activité a besoin, dans votre langue et votre devise, en ligne ou hors ligne.</p>
+      <div class="actions">
+        <a class="btn white" href="#demos"><svg width="20" height="20" style="color:var(--violet)"><use href="#i-play"/></svg>Tester une démo en ligne</a>
+        <a class="btn ghost" href="https://wa.me/261349382359?text=Bonjour%2C%20je%20voudrais%20une%20d%C3%A9monstration%20gratuite%20de%20vos%20logiciels." target="_blank" rel="noopener"><svg width="20" height="20"><use href="#i-wa"/></svg>Démo gratuite sur WhatsApp</a>
+      </div>
+      <ul class="chips"><li>Cloud</li><li>Hors ligne</li><li>PC · Tablette · Smartphone</li><li>100 % sur mesure</li></ul>
+    </div>
+    <div class="preview">
+      <div class="ph">
+        <span class="ic"><svg width="20" height="20"><use href="#i-device"/></svg></span>
+        <b id="pvName">TR Naja · Caisse &amp; Stock</b>
+        <span class="tag c-fin" style="--cbg:#DCFCE7;--cfg:#15803D;background:var(--cbg);color:var(--cfg)">Démo en ligne</span>
+      </div>
+      <a class="shot" id="pvLink" href="demos/trnaja.html" aria-label="Ouvrir la démo"><img id="pvImg" src="img/trnaja.jpg" alt="Écran du logiciel de démonstration" width="1280" height="800"></a>
+      <div class="pf">
+        <span class="dots" id="pvDots"><i class="on"></i><i></i><i></i><i></i></span>
+        <a id="pvGo" href="demos/trnaja.html">Ouvrir cette démo <svg width="18" height="18"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section id="avantages" style="scroll-margin-top:80px"><div class="wrap benefits">
+  <div class="benefit"><span class="ic" style="background:#EDE9FE;color:#6D28D9"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h10M4 17h7"/></svg></span><h3>Simplifier</h3><p>Une gestion claire et centralisée, facile à prendre en main.</p></div>
+  <div class="benefit"><span class="ic" style="background:#FEE2E2;color:#DC2626"><svg width="22" height="22"><use href="#i-shield"/></svg></span><h3>Réduire les erreurs</h3><p>Calculs automatiques et moins de saisies manuelles.</p></div>
+  <div class="benefit"><span class="ic" style="background:#FEF3C7;color:#B45309"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><h3>Gagner du temps</h3><p>Les tâches répétitives se font toutes seules.</p></div>
+  <div class="benefit"><span class="ic" style="background:#DCFCE7;color:#15803D"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><h3>Plus de rentabilité</h3><p>Des chiffres fiables pour mieux décider et mieux vendre.</p></div>
+</div></section>
+
+<section class="block" id="demos"><div class="wrap">
+  <div class="head">
+    <div>
+      <span class="eyebrow">Démos en ligne</span>
+      <h2>Testez nos logiciels comme un vrai utilisateur</h2>
+      <p>Ouvrez une démo, connectez-vous avec le compte de test, puis ajoutez, modifiez et supprimez librement. Rien à installer.</p>
+    </div>
+    <span class="count">7 démos à essayer</span>
+  </div>
+  <div class="demo-note">
+    <span><svg width="18" height="18"><use href="#i-key"/></svg>Identifiants de test affichés dans chaque démo</span>
+    <span><svg width="18" height="18"><use href="#i-shield"/></svg>Données 100 % fictives</span>
+    <span><svg width="18" height="18"><use href="#i-reset"/></svg>Vos saisies sont effacées à la déconnexion</span>
+  </div>
+
+  <div class="demos">
+    <article class="demo" style="--tint:#EDF7F0">
+      <a class="shot" href="demos/trnaja.html" tabindex="-1" aria-hidden="true"><div class="win"><div class="bar"><i></i><i></i><i></i></div><img src="img/trnaja.jpg" alt="" loading="lazy" width="1280" height="800"></div></a>
+      <div class="body">
+        <span class="tag c-com">Commerce · Stock</span>
+        <h3>TR Naja</h3>
+        <p>Caisse, ventes en gros et au détail, crédits clients, plusieurs magasins, inventaire, clôture de caisse et statistiques.</p>
+        <div class="creds"><svg width="18" height="18"><use href="#i-key"/></svg><span>Compte : <code>admin</code> / <code>admin123</code></span></div>
+        <div class="acts"><a class="btn violet" href="demos/trnaja.html"><svg width="18" height="18"><use href="#i-play"/></svg>Tester la démo</a></div>
+      </div>
+    </article>
+    <article class="demo" style="--tint:#EEF0FB">
+      <a class="shot" href="demos/efa-gestion.html" tabindex="-1" aria-hidden="true"><div class="win"><div class="bar"><i></i><i></i><i></i></div><img src="img/efa-gestion.jpg" alt="" loading="lazy" width="1280" height="800"></div></a>
+      <div class="body">
+        <span class="tag c-fin">Association · Comptabilité</span>
+        <h3>EFA Gestion</h3>
+        <p>Caisse et banque, demandes de dépense avec validation, budgets par bailleur, missions, inventaire et rapports financiers.</p>
+        <div class="creds"><svg width="18" height="18"><use href="#i-key"/></svg><span>Compte : <code>super-adm</code> / <code>Ampandrana</code></span></div>
+        <div class="acts"><a class="btn violet" href="demos/efa-gestion.html"><svg width="18" height="18"><use href="#i-play"/></svg>Tester la démo</a></div>
+      </div>
+    </article>
+    <article class="demo" style="--tint:#F3EEFD">
+      <a class="shot" href="demos/famille-budget.html" tabindex="-1" aria-hidden="true"><div class="win"><div class="bar"><i></i><i></i><i></i></div><img src="img/famille-budget.jpg" alt="" loading="lazy" width="1280" height="800"></div></a>
+      <div class="body">
+        <span class="tag c-fin">Finance · Famille</span>
+        <h3>Famille Budget</h3>
+        <p>Revenus, dépenses, comptes Mobile Money, bilans du mois et de l'année, profils de la famille avec code PIN.</p>
+        <div class="creds"><svg width="18" height="18"><use href="#i-key"/></svg><span>Compte : <code>papa</code> / <code>demo123</code></span></div>
+        <div class="acts"><a class="btn violet" href="demos/famille-budget.html"><svg width="18" height="18"><use href="#i-play"/></svg>Tester la démo</a><a class="alt" href="demos/budget-famille.html">Version mobile</a></div>
+      </div>
+    </article>
+    <article class="demo" style="--tint:#EEF6EF">
+      <a class="shot" href="demos/mini-comptoir.html" tabindex="-1" aria-hidden="true"><div class="win"><div class="bar"><i></i><i></i><i></i></div><img src="img/mini-comptoir.jpg" alt="" loading="lazy" width="1280" height="800"></div></a>
+      <div class="body">
+        <span class="tag c-com">Commerce · Caisse</span>
+        <h3>Comptoir</h3>
+        <p>Ventes, produits et stock mis à jour à chaque vente, clients, dépenses et chiffre d'affaires du jour.</p>
+        <div class="creds"><svg width="18" height="18"><use href="#i-key"/></svg><span>Compte : <code>gerant</code> / <code>demo123</code></span></div>
+        <div class="acts"><a class="btn violet" href="demos/mini-comptoir.html"><svg width="18" height="18"><use href="#i-play"/></svg>Tester la démo</a></div>
+      </div>
+    </article>
+    <article class="demo" style="--tint:#FDF1E7">
+      <a class="shot" href="demos/mini-vlany.html" tabindex="-1" aria-hidden="true"><div class="win"><div class="bar"><i></i><i></i><i></i></div><img src="img/mini-vlany.jpg" alt="" loading="lazy" width="1280" height="800"></div></a>
+      <div class="body">
+        <span class="tag c-met">Restaurant · Snack · Bar</span>
+        <h3>V'lany Gasy</h3>
+        <p>Commandes par table, menus, stock de cuisine alimenté par les achats, dépenses et plats les plus vendus.</p>
+        <div class="creds"><svg width="18" height="18"><use href="#i-key"/></svg><span>Compte : <code>gerant</code> / <code>demo123</code></span></div>
+        <div class="acts"><a class="btn violet" href="demos/mini-vlany.html"><svg width="18" height="18"><use href="#i-play"/></svg>Tester la démo</a></div>
+      </div>
+    </article>
+    <article class="demo" style="--tint:#FBF3E2">
+      <a class="shot" href="demos/mini-golden.html" tabindex="-1" aria-hidden="true"><div class="win"><div class="bar"><i></i><i></i><i></i></div><img src="img/mini-golden.jpg" alt="" loading="lazy" width="1280" height="800"></div></a>
+      <div class="body">
+        <span class="tag c-ent">Import · Boutique</span>
+        <h3>Golden Boutique</h3>
+        <p>Achats à l'étranger suivis jusqu'à la douane, coût de revient et marge par produit, ventes en boutique.</p>
+        <div class="creds"><svg width="18" height="18"><use href="#i-key"/></svg><span>Compte : <code>gerant</code> / <code>demo123</code></span></div>
+        <div class="acts"><a class="btn violet" href="demos/mini-golden.html"><svg width="18" height="18"><use href="#i-play"/></svg>Tester la démo</a></div>
+      </div>
+    </article>
+    <article class="demo wide" style="--tint:#EAF0FD">
+      <a class="shot" href="demos/mini-trano.html" tabindex="-1" aria-hidden="true"><div class="win"><div class="bar"><i></i><i></i><i></i></div><img src="img/mini-trano.jpg" alt="" loading="lazy" width="1280" height="800"></div></a>
+      <div class="body">
+        <span class="tag c-met" style="align-self:flex-start">Hôtellerie</span>
+        <h3>Trano, la gestion d'hôtel complète</h3>
+        <p>Réservations sans double location, arrivées et départs, état des chambres, ménage, facturation en espèces ou Mobile Money.</p>
+        <div class="creds"><svg width="18" height="18"><use href="#i-key"/></svg><span>Compte : <code>reception</code> / <code>demo123</code></span></div>
+        <div class="acts"><a class="btn violet" href="demos/mini-trano.html"><svg width="18" height="18"><use href="#i-play"/></svg>Tester la démo</a></div>
+      </div>
+    </article>
+  </div>
+</div></section>
+
+<section class="block" id="logiciels"><div class="wrap">
+  <div class="head">
+    <div>
+      <span class="eyebrow">Notre catalogue</span>
+      <h2>Tous nos logiciels, adaptés à votre métier</h2>
+      <p>Choisissez un module ou combinez-en plusieurs : chaque solution est personnalisée selon vos besoins.</p>
+    </div>
+    <span class="count" id="count">24 logiciels</span>
+  </div>
+  <div class="filters" role="group" aria-label="Filtrer par catégorie">
+    <button type="button" data-f="all" aria-pressed="true">Tous</button>
+    <button type="button" data-f="com" aria-pressed="false">Commerce</button>
+    <button type="button" data-f="fin" aria-pressed="false">Finance</button>
+    <button type="button" data-f="ent" aria-pressed="false">Entreprise</button>
+    <button type="button" data-f="met" aria-pressed="false">Métiers</button>
+    <button type="button" data-f="web" aria-pressed="false">Web &amp; Mobile</button>
+    <button type="button" data-f="demo" aria-pressed="false">Avec démo en ligne</button>
+  </div>
+  <div class="cat" id="cat"></div>
+  <div class="custom">
+    <div><b>Votre métier n'est pas dans la liste ?</b><span>Nous développons le logiciel exact dont vous avez besoin.</span></div>
+    <a class="btn violet" href="https://wa.me/261349382359?text=Bonjour%2C%20je%20voudrais%20d%C3%A9crire%20mon%20projet%20de%20logiciel%20sur%20mesure." target="_blank" rel="noopener">Décrire mon projet</a>
+  </div>
+</div></section>
+
+<section class="block"><div class="wrap flex3">
+  <div class="intro">
+    <span class="eyebrow">Flexibilité</span>
+    <h2>En ligne ou hors ligne, vous choisissez.</h2>
+    <p>Connexion instable ? Nos logiciels fonctionnent aussi sans internet, et se synchronisent quand vous êtes en ligne si votre projet le prévoit.</p>
+  </div>
+  <div class="cloud">
+    <span class="big" style="background:#5B3DF5"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 1 0-1.4-8.8A6 6 0 1 0 6 18.9h11.5Z"/></svg></span>
+    <h3>Version Cloud</h3>
+    <p>Accès en temps réel depuis le bureau, la boutique ou la maison. Idéal pour plusieurs points de vente.</p>
+  </div>
+  <div class="off">
+    <span class="big" style="background:#BE185D"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+    <h3>Version Offline</h3>
+    <p>Installée sur votre poste, elle tourne sans internet : rapide, fiable et sécurisée.</p>
+  </div>
+</div></section>
+
+<section class="block" id="methode"><div class="wrap">
+  <div class="head"><div><span class="eyebrow">Notre méthode</span><h2>Un accompagnement de A à Z</h2></div></div>
+  <ol class="steps">
+    <li><span class="n">1</span><b>Écoute &amp; conseil</b><span>Nous analysons votre activité et vos besoins réels.</span></li>
+    <li><span class="n">2</span><b>Démo en ligne</b><span>Vous testez la solution vous-même avant de vous engager.</span></li>
+    <li><span class="n">3</span><b>Personnalisation</b><span>Le logiciel est adapté à votre façon de travailler.</span></li>
+    <li><span class="n">4</span><b>Formation &amp; suivi</b><span>Installation, formation et accompagnement continu.</span></li>
+  </ol>
+</div></section>
+
+<section class="contact" id="contact"><div class="wrap">
+  <div class="cbox">
+    <div>
+      <h2>Un projet ? Écrivez-nous sur WhatsApp.</h2>
+      <p>Démonstration gratuite, conseils et devis personnalisé, pour Madagascar et l'international. Réponse rapide.</p>
+      <a class="btn white" href="https://wa.me/261349382359?text=Bonjour%2C%20je%20souhaite%20un%20devis%20pour%20un%20logiciel%20sur%20mesure." target="_blank" rel="noopener"><svg width="20" height="20"><use href="#i-wa"/></svg>Discuter sur WhatsApp</a>
+    </div>
+    <div class="clist">
+      <a class="citem" href="https://wa.me/261349382359?text=Bonjour%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20vos%20logiciels." target="_blank" rel="noopener"><span class="ic"><svg width="24" height="24"><use href="#i-wa"/></svg></span><div><small>WhatsApp &amp; appel</small><b>+261 34 93 823 59</b></div></a>
+      <a class="citem" href="mailto:oasismdg3434@gmail.com?subject=Projet%20de%20logiciel%20sur%20mesure"><span class="ic v"><svg width="22" height="22"><use href="#i-mail"/></svg></span><div><small>E-mail</small><b>oasismdg3434@gmail.com</b></div></a>
+      <div class="citem"><span class="ic v"><svg width="22" height="22"><use href="#i-pin"/></svg></span><div><b>Ampandrana, Antananarivo</b><small>Madagascar · clients dans le monde entier</small></div></div>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <b>Création Logiciel Sur Mesure</b>
+  <span>Logiciels de gestion sur mesure · Madagascar &amp; international</span>
+  <span>© 2026 · Tous droits réservés</span>
+</div></footer>
+
+<a class="float" href="https://wa.me/261349382359?text=Bonjour%2C%20je%20voudrais%20une%20d%C3%A9monstration." target="_blank" rel="noopener" aria-label="Démo sur WhatsApp"><svg width="22" height="22"><use href="#i-wa"/></svg><span>Démo</span></a>
+
+<script>
+(function(){
+  var WA='https://wa.me/261349382359?text=';
+  var I={
+    cart:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a1 1 0 0 0 1 .8h9.5a1 1 0 0 0 1-.8L21 7H6"/>',
+    box:'<path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/>',
+    doc:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+    inbox:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 14h6"/>',
+    shop:'<path d="M3 9l1.5-5h15L21 9M3 9v11h18V9M3 9h18"/><path d="M9 20v-6h6v6"/>',
+    calc:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h8"/>',
+    bill:'<path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+    chart:'<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 6-6"/>',
+    home:'<path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10M10 20v-6h4v6"/>',
+    users:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/>',
+    id:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/>',
+    grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+    food:'<path d="M5 2v8a2 2 0 0 0 4 0V2M7 10v12M17 2c-2 2-3 5-3 8h3v12"/>',
+    bed:'<path d="M2 20V6M2 14h20v6M22 14v-3a3 3 0 0 0-3-3h-8v6"/><circle cx="6.5" cy="10.5" r="2"/>',
+    truck:'<path d="M2 6h12v10H2zM14 9h4l4 4v3h-8"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>',
+    crane:'<path d="M2 20h20M5 20V9l7-5 7 5v11"/><path d="M9 20v-5h6v5"/>',
+    plus:'<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6V3Z"/>',
+    cap:'<path d="m22 9-10-5L2 9l10 5 10-5Z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',
+    car:'<path d="M5 16V11l2-5h10l2 5v5M5 16h14M5 16v3M19 16v3M3 11h18"/><circle cx="8" cy="13.5" r=".8"/><circle cx="16" cy="13.5" r=".8"/>',
+    key:'<circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 9.3-9.3M16 7l3 3"/>',
+    globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+    bag:'<path d="M5 8h14l-1 13H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+    phone:'<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>',
+    code:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M10 13l-2 2 2 2M14 13l2 2-2 2"/>'
+  };
+  var CAT={com:'Commerce',fin:'Finance',ent:'Entreprise',met:'Métiers',web:'Web & Mobile'};
+  var STD=['Cloud','Hors ligne','PC · Mobile'];
+  var L=[
+    ['com','cart','Caisse & Point de vente','Encaissement rapide, tickets, remises et clôture de caisse journalière.',STD,'mini-comptoir'],
+    ['com','box','Gestion de stock','Entrées, sorties, inventaires, multi-dépôts et alertes de rupture.',STD,'trnaja'],
+    ['com','doc','Ventes & Devis','Devis, commandes clients et bons de livraison en quelques clics.',STD,''],
+    ['com','inbox','Achats & Fournisseurs','Commandes fournisseurs, réceptions et suivi des prix d’achat.',STD,'mini-golden'],
+    ['com','shop','Supérette & Boutique','Code-barres, prix de gros et de détail, crédit client.',STD,'trnaja'],
+    ['fin','calc','Comptabilité','Journaux, grand livre, bilan et compte de résultat.',STD,'efa-gestion'],
+    ['fin','bill','Facturation','Factures, avoirs, relances et suivi des paiements.',STD,''],
+    ['fin','chart','Trésorerie & Dépenses','Caisse, banque, Mobile Money et suivi des dépenses.',STD,'efa-gestion'],
+    ['fin','home','Budget familial','Revenus, dépenses et épargne de la famille, mois par mois.',STD,'famille-budget'],
+    ['ent','users','CRM & Clients','Fichier clients, prospects, historique et relances commerciales.',STD,''],
+    ['ent','id','RH & Paie','Employés, présences, congés, avances et fiches de paie.',STD,''],
+    ['ent','grid','Gestion commerciale','Ventes, achats, stock et facturation réunis dans un seul outil.',STD,'mini-golden'],
+    ['met','food','Restaurant & Snack','Commandes par table, envoi en cuisine et caisse synchronisée.',STD,'mini-vlany'],
+    ['met','bed','Hôtel & Réservations','Chambres, réservations, check-in et facturation des séjours.',STD,'mini-trano'],
+    ['met','truck','Transport & Flotte','Véhicules, chauffeurs, trajets, carburant et recettes.',STD,''],
+    ['met','crane','Chantier (BTP)','Suivi des chantiers, matériaux, main-d’œuvre et budgets.',STD,''],
+    ['met','plus','Pharmacie','Médicaments, lots, dates de péremption et ventes.',STD,''],
+    ['met','cap','Gestion scolaire','Élèves, écolages, notes, bulletins et emplois du temps.',STD,''],
+    ['met','car','Garage & Atelier','Ordres de réparation, pièces détachées et facturation.',STD,''],
+    ['met','key','Location immobilière','Biens, locataires, loyers, quittances et impayés.',STD,''],
+    ['web','globe','Site internet pro','Site vitrine moderne, rapide et adapté au mobile.',['En ligne','Mobile'],''],
+    ['web','bag','Boutique en ligne','Catalogue, panier et commandes de vos clients sur internet.',['En ligne','Mobile'],''],
+    ['web','phone','Application mobile','Vos outils de gestion dans la poche de vos équipes.',['Android','Hors ligne'],''],
+    ['web','code','Application web sur mesure','Plateforme sur mesure accessible depuis n’importe quel navigateur.',['Cloud','PC · Mobile'],'']
+  ];
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+  var waSvg='<svg width="18" height="18"><use href="#i-wa"/></svg>';
+  var html=L.map(function(x){
+    var c=x[0],demo=x[5];
+    var msg=encodeURIComponent('Bonjour, je voudrais une démonstration du logiciel « '+x[2]+' ».');
+    var cta=demo
+      ? '<a class="try" href="demos/'+demo+'.html"><svg width="18" height="18"><use href="#i-play"/></svg>Tester la démo</a><a class="ask" href="'+WA+msg+'" target="_blank" rel="noopener">'+waSvg+'Demander sur WhatsApp</a>'
+      : '<a class="ask" href="'+WA+msg+'" target="_blank" rel="noopener">'+waSvg+'Demander une démo</a>';
+    return '<article class="item c-'+c+'" data-c="'+c+'" data-demo="'+(demo?1:0)+'">'+
+      '<div class="row"><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+I[x[1]]+'</svg></span>'+
+      (demo?'<span class="live">Démo en ligne</span>':'<span class="tag c-'+c+'">'+esc(CAT[c])+'</span>')+'</div>'+
+      '<h3>'+esc(x[2])+'</h3><p>'+esc(x[3])+'</p>'+
+      '<ul class="mini">'+x[4].map(function(t){return '<li>'+t+'</li>'}).join('')+'</ul>'+
+      '<div class="cta">'+cta+'</div></article>';
+  }).join('');
+  var cat=document.getElementById('cat');cat.innerHTML=html;
+  var count=document.getElementById('count');
+  var btns=document.querySelectorAll('.filters button');
+  btns.forEach(function(b){b.addEventListener('click',function(){
+    var f=b.getAttribute('data-f'),n=0;
+    btns.forEach(function(o){o.setAttribute('aria-pressed',o===b?'true':'false')});
+    cat.querySelectorAll('.item').forEach(function(it){
+      var show=f==='all'||(f==='demo'?it.getAttribute('data-demo')==='1':it.getAttribute('data-c')===f);
+      it.hidden=!show;if(show)n++;
+    });
+    count.textContent=n+(n>1?' logiciels':' logiciel');
+  })});
+
+  /* aperçu qui défile dans l'accroche */
+  var P=[['TR Naja · Caisse & Stock','trnaja'],['EFA Gestion · Association','efa-gestion'],['Famille Budget','famille-budget'],['Trano · Hôtel','mini-trano']];
+  var k=0,img=document.getElementById('pvImg'),nm=document.getElementById('pvName'),lk=document.getElementById('pvLink'),go=document.getElementById('pvGo'),dots=document.querySelectorAll('#pvDots i');
+  P.forEach(function(p){var im=new Image();im.src='img/'+p[1]+'.jpg'});
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce)setInterval(function(){
+    k=(k+1)%P.length;var p=P[k];
+    img.src='img/'+p[1]+'.jpg';nm.textContent=p[0];lk.href=go.href='demos/'+p[1]+'.html';
+    dots.forEach(function(d,i){d.className=i===k?'on':''});
+  },3800);
+})();
+</script>
+</body>
+</html>
